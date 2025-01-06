@@ -1,5 +1,4 @@
-import { boolean, pgTable, text, uuid, varchar } from 'drizzle-orm/pg-core';
-import { timestamps } from '../helpers.js';
+import { boolean, pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 
 
 
@@ -11,5 +10,8 @@ export const userTable = pgTable("users", {
     isActive: boolean().default(false),
     email_verified: boolean().default(false),
     password: text().notNull(),
-    ...timestamps
+
+    updatedAt: timestamp().defaultNow().$onUpdate(() => new Date()),
+    created_at: timestamp().defaultNow().notNull(),
+    deleted_at: timestamp(),
 })
