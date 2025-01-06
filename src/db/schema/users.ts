@@ -1,4 +1,5 @@
 import { boolean, pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
+import { createInsertSchema } from 'drizzle-zod';
 
 
 
@@ -15,3 +16,5 @@ export const userTable = pgTable("users", {
     created_at: timestamp().defaultNow().notNull(),
     deleted_at: timestamp(),
 })
+
+export const userInsertSchema = createInsertSchema(userTable);

@@ -26,6 +26,9 @@ importers:
       drizzle-orm:
         specifier: ^0.38.3
         version: 0.38.3(postgres@3.4.5)
+      drizzle-zod:
+        specifier: ^0.6.1
+        version: 0.6.1(drizzle-orm@0.38.3(postgres@3.4.5))(zod@3.23.8)
       hono:
         specifier: ^4.6.5
         version: 4.6.5
@@ -1125,6 +1128,12 @@ packages:
         optional: true
       sqlite3:
         optional: true
+
+  drizzle-zod@0.6.1:
+    resolution: {integrity: sha512-huEbUgnsuR8tupnmLiyB2F1I2H9dswI3GfM36IbIqx9i0YUeYjRsDpJVyFVeziUvI1ogT9JHRL2Q03cC4QmvxA==}
+    peerDependencies:
+      drizzle-orm: '>=0.36.0'
+      zod: '>=3.0.0'
 
   electron-to-chromium@1.5.41:
     resolution: {integrity: sha512-dfdv/2xNjX0P8Vzme4cfzHqnPm5xsZXwsolTYr0eyW18IUmNyG08vL+fttvinTfhKfIKdRoqkDIC9e9iWQCNYQ==}
@@ -3057,6 +3066,11 @@ snapshots:
   drizzle-orm@0.38.3(postgres@3.4.5):
     optionalDependencies:
       postgres: 3.4.5
+
+  drizzle-zod@0.6.1(drizzle-orm@0.38.3(postgres@3.4.5))(zod@3.23.8):
+    dependencies:
+      drizzle-orm: 0.38.3(postgres@3.4.5)
+      zod: 3.23.8
 
   electron-to-chromium@1.5.41: {}
 
