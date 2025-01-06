@@ -1,9 +1,9 @@
 import { createRoute, z } from "@hono/zod-openapi";
-
 import { createRouter } from "@/lib/create-app.js";
 
 const router = createRouter().openapi(createRoute({
   method: "get",
+  tags: ["Home"],
   path: "/",
   responses: {
     200: {
