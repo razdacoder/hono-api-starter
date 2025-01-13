@@ -1,8 +1,30 @@
+import env from '@/env.js';
 import { Queue } from 'bullmq';
+import { default as IORedis } from "ioredis"
 
-const connection = {
-  host: 'localhost',
-  port: 6379,
+
+const QUEUE = {
+  default: 'default',
 };
 
+const connection = new IORedis.default({
+  port: env.REDIS_PORT,
+  host: env.REDIS_HOST,
+  maxRetriesPerRequest: null,
+});
 
+// Reuse the ioredis instance
+const defaultQueue = new Queue(QUEUE.default, {
+  connection,
+  defaultJobOptions: {
+    removeOnComplete: {
+      count: 1000, // keep up to 1000 jobs
+      age: 24 * 3600, // keep up to 24 hours
+    },
+    removeOnFail: {
+      age: 24 * 3600, // keep up to 24 hours
+    },
+  },
+});
+
+export { QUEUE, connection, defaultQueue };

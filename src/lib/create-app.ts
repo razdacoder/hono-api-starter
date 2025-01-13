@@ -10,6 +10,7 @@ import onError from "@/middlewares/on-error.js";
 import { logger } from "@/middlewares/pino-logger.js";
 import serveEmojiFavicon from "@/middlewares/serve-emoji-favicon.js";
 import { tracing } from "@/middlewares/tracing.js";
+import { createTasker } from "@/tasks/index.js";
 
 export function createRouter() {
   return new OpenAPIHono<AppBindings>({ strict: false });
@@ -27,6 +28,14 @@ export default function createApp() {
 
   app.notFound(notFound);
   app.onError(onError);
+
+
+  const tasker = createTasker();
+  const worker = tasker.setup();
+
+  worker.on('ready', () => {
+    console.log('Worker is ready and listening for jobs!');
+  });
 
   return app;
 }
