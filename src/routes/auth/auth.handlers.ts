@@ -1,5 +1,5 @@
 import type { AppRouteHandler } from "@/lib/types.js";
-import type { RegisterRoute, ResendActivation } from "./auth.routes.js";
+import type { RegisterRoute, ResendActivationType, ActivationType } from "./auth.routes.js";
 import { db } from "@/db/index.js";
 import { eq } from "drizzle-orm";
 import { users } from "@/db/schema/users.js";
@@ -7,7 +7,7 @@ import argon2 from "argon2";
 import { userSelect } from "@/services/users.js";
 import { defaultQueue, connection as redis } from "@/lib/queue.js";
 import { TASK } from "@/tasks/index.js";
-import { generateOrReuseOTP } from "@/lib/encryption.js";
+import { generateOrReuseOTP, validateOTP } from "@/lib/encryption.js";
 
 export const register: AppRouteHandler<RegisterRoute> = async (c) => {
   const { firstName, lastName, email, password } = c.req.valid("json");
@@ -52,7 +52,7 @@ export const register: AppRouteHandler<RegisterRoute> = async (c) => {
   );
 };
 
-export const resendActivation: AppRouteHandler<ResendActivation> = async (
+export const resendActivation: AppRouteHandler<ResendActivationType> = async (
   c
 ) => {
   const { email } = c.req.valid("json");
@@ -81,3 +81,31 @@ export const resendActivation: AppRouteHandler<ResendActivation> = async (
     200
   );
 };
+
+export const activation: AppRouteHandler<ActivationType> = async (c) => {
+  const {email, otp } = c.req.valid("json")
+  const [user] = await db.select(userSelect).from(users).where(eq(users.email, email))
+
+  if (!user) {
+    return c.json({
+      success: false,
+      message: "Invalid OTP"
+    }, 400)
+  }
+
+  const isValidOTP = await validateOTP(user.id, otp)
+
+  if (!isValidOTP) {
+    return c.json({
+      success: false,
+      message: "Invalid or Expired OTP"
+    }, 400)
+  }
+
+  await db.update(users).set({isActive: true, email_verified: true}).where(eq(users.id, user.id))
+
+  return c.json({
+    success: true,
+    message: "Account activated successfully"
+  }, 200)
+}

@@ -14,7 +14,7 @@ export default function configureOpenAPI(app: AppOpenAPI) {
   });
 
   app.get(
-    "/doc",
+    "/docs",
     apiReference({
       theme: "kepler",
       spec: {
@@ -25,6 +25,6 @@ export default function configureOpenAPI(app: AppOpenAPI) {
         targetKey: "javascript",
         clientKey: "axios",
       },
-    }),
+    })
   );
 }

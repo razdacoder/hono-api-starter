@@ -4,7 +4,7 @@ import jsonContent from "@/utils/jsonContent.js";
 import { userInsertSchema, userSelectSchema } from "@/db/schema/users.js";
 import jsonContentRequired from "@/utils/jsonContentRequired.js";
 import createErrorSchema from "@/utils/create-error-schema.js";
-import { createSuccessSchema } from "@/utils/create-success-schema.js";
+import { createSuccessSchema } from "@/utils/create-success-schema";
 
 const tags = ["Auth"];
 
@@ -69,5 +69,35 @@ export const resendActivation = createRoute({
   },
 });
 
+export const activation = createRoute({
+  path: "/activation",
+  method: "post",
+  tags,
+  request: {
+    body: jsonContentRequired(
+      z.object({
+        email: z.string().email({ message: "Invalid email address" }),
+        otp: z.string().min(6).max(6),
+      }),
+      "Activation request body"
+    ),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      createSuccessSchema(),
+      "Account activation sucessfull"
+    ),
+    [HttpStatusCodes.BAD_REQUEST]: 
+      jsonContent(
+        z.object({
+          success: z.boolean().default(false),
+          message: z.string(),
+        }),
+        "Activation Invalid OTP"
+      ),
+    
+  },
+});
 export type RegisterRoute = typeof register;
-export type ResendActivation = typeof resendActivation;
+export type ResendActivationType = typeof resendActivation;
+export type ActivationType = typeof activation

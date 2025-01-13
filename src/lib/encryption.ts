@@ -23,3 +23,11 @@ export async function generateOrReuseOTP(userId: string): Promise<string> {
 
   return otp;
 }
+
+export async function validateOTP(userId: string, otp: string): Promise<boolean> {
+  const key = `otp:${userId}`;
+  const storedOtp = await redis.get(key);
+
+  // Check if OTP matches
+  return storedOtp === otp;
+}
