@@ -1,47 +1,25 @@
-import env from '@/env.js';
 import crypto from 'crypto';
+import {connection as redis} from "@/lib/queue.js"
 
 
-const encrypt = (text: string): string => {
-  // Generate a random initialization vector (IV)
-  const iv = crypto.randomBytes(16);
+function generateOTP(length: number = 6): string {
+  return crypto.randomInt(10 ** (length - 1), 10 ** length).toString();
+}
 
-  // Derive a 256-bit key from the password using SHA-256 hashing
-  const key = crypto.createHash('sha256').update(env.SECRET_KEY).digest('base64').slice(0, 32);
+export async function generateOrReuseOTP(userId: string): Promise<string> {
+  const key = `otp:${userId}`;
 
-  // Create a cipher using AES-256-CBC algorithm
-  const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+  // Check if OTP exists and is valid
+  const existingOtp = await redis.get(key);
+  if (existingOtp) {
+    return existingOtp; // OTP exists, reuse it
+  }
 
-  // Encrypt the plaintext
-  let encrypted = cipher.update(text, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
+  // Generate a new OTP
+  const otp = generateOTP();
 
-  // Return the encrypted text along with the IV
-  return `${iv.toString('hex')}:${encrypted}`;
-};
+  // Store OTP in Redis with an expiration time (10 minutes)
+  await redis.set(key, otp, 'EX', 600); // 600 seconds = 10 minutes
 
-const decrypt = (encryptedText: string): string => {
-  // Split the encrypted text into the IV and the ciphertext
-  const [ivHex, ciphertext] = encryptedText.split(':');
-
-  // Convert the hexadecimal IV to a Buffer
-  const iv = Buffer.from(ivHex, 'hex');
-
-  // Derive the 256-bit key from the password using SHA-256 hashing
-  const key = crypto.createHash('sha256').update(env.SECRET_KEY).digest('base64').slice(0, 32);
-
-  // Create a decipher using AES-256-CBC algorithm
-  const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-
-  // Decrypt the ciphertext
-  let decrypted = decipher.update(ciphertext, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
-
-  return decrypted;
-};
-
-const verify = (text: string, encryptedText: string): boolean => {
-  return text === decrypt(encryptedText);
-};
-
-export { encrypt, verify };
+  return otp;
+}

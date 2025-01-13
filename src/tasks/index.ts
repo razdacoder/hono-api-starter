@@ -2,9 +2,11 @@ import { type Job, Worker } from 'bullmq';
 import { QUEUE, connection, defaultQueue } from '@/lib/queue.js';
 import sendWelcomeEmail from './emails/sendWelcomeEmail.js';
 import { logger } from '@/lib/logger.js';
+import sendActivationEmail from './emails/sendActivationEmail.js';
 
 const TASK = {
   SendWelcomeEmail: 'SendWelcomeEmail',
+  SendActivationEmail: 'SendActivationEmail'
 };
 
 const createTasker = () => {
@@ -12,6 +14,11 @@ const createTasker = () => {
     switch (job.name) {
       case TASK.SendWelcomeEmail: {
         await sendWelcomeEmail();
+        break;
+      }
+      case TASK.SendActivationEmail: {
+        const { email, otp } = job.data;
+        await sendActivationEmail({email, otp});
         break;
       }
       default: {
@@ -44,5 +51,7 @@ const createTasker = () => {
 
   return { setup };
 };
+
+
 
 export { TASK, createTasker };
