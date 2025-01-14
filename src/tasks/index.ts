@@ -3,10 +3,12 @@ import { QUEUE, connection, defaultQueue } from "@/lib/queue.js";
 import sendWelcomeEmail from "./emails/sendWelcomeEmail.js";
 import { logger } from "@/lib/logger.js";
 import sendActivationEmail from "./emails/sendActivationEmail.js";
+import sendPasswordResetEmail from "./emails/sendPasswordResetEmail.js";
 
 const TASK = {
   SendWelcomeEmail: "SendWelcomeEmail",
   SendActivationEmail: "SendActivationEmail",
+  SendPasswordResetEmail: "SendPasswordResetEmail",
 };
 
 const createTasker = () => {
@@ -20,6 +22,11 @@ const createTasker = () => {
       case TASK.SendActivationEmail: {
         const { email, otp } = job.data;
         await sendActivationEmail({ email, otp });
+        break;
+      }
+      case TASK.SendPasswordResetEmail: {
+        const { email, otp, name } = job.data;
+        await sendPasswordResetEmail({ email, otp, name });
         break;
       }
       default: {

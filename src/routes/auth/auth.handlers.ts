@@ -4,16 +4,17 @@ import type {
   ResendActivationType,
   ActivationType,
   LoginType,
+  ResetPasswordType,
 } from "./auth.routes.js";
 import { db } from "@/db/index.js";
 import { eq } from "drizzle-orm";
 import { users } from "@/db/schema/users.js";
 import argon2 from "argon2";
 import { userSelect, getUserByEmail } from "@/services/users.js";
-import { defaultQueue, connection as redis } from "@/lib/queue.js";
+import { defaultQueue } from "@/lib/queue.js";
 import { TASK } from "@/tasks/index.js";
 import { generateOrReuseOTP, validateOTP } from "@/lib/encryption.js";
-import { encodeJWT, JWTPayload } from "@/lib/jwt.js";
+import { encodeJWT } from "@/lib/jwt.js";
 
 export const register: AppRouteHandler<RegisterRoute> = async (c) => {
   const { firstName, lastName, email, password } = c.req.valid("json");
@@ -39,7 +40,7 @@ export const register: AppRouteHandler<RegisterRoute> = async (c) => {
     })
     .returning(userSelect);
 
-  const otp = await generateOrReuseOTP(user.id);
+  const otp = await generateOrReuseOTP(user.id, "activation");
 
   const job = await defaultQueue.add(TASK.SendActivationEmail, {
     email: user.email,
@@ -69,7 +70,7 @@ export const resendActivation: AppRouteHandler<ResendActivationType> = async (
   if (!user) {
     return c.json({ success: false, message: "No active account found" }, 400);
   }
-  const otp = await generateOrReuseOTP(user.id);
+  const otp = await generateOrReuseOTP(user.id, "activation");
 
   const job = await defaultQueue.add(TASK.SendActivationEmail, {
     email: user.email,
@@ -105,7 +106,7 @@ export const activation: AppRouteHandler<ActivationType> = async (c) => {
     );
   }
 
-  const isValidOTP = await validateOTP(user.id, otp);
+  const isValidOTP = await validateOTP(user.id, otp, "activation");
 
   if (!isValidOTP) {
     return c.json(
@@ -162,7 +163,7 @@ export const login: AppRouteHandler<LoginType> = async (c) => {
   }
 
   if (!user.email_verified) {
-    const otp = await generateOrReuseOTP(user.id);
+    const otp = await generateOrReuseOTP(user.id, "activation");
 
     const job = await defaultQueue.add(TASK.SendActivationEmail, {
       email: user.email,
@@ -207,4 +208,27 @@ export const login: AppRouteHandler<LoginType> = async (c) => {
     },
     200
   );
+};
+
+export const resetPassword: AppRouteHandler<ResetPasswordType> = async (c) => {
+  const { email } = c.req.valid("json");
+
+  const user = await getUserByEmail(email);
+
+  if (user) {
+    const otp = await generateOrReuseOTP(user.id, "reset-password");
+    const job = await defaultQueue.add(TASK.SendPasswordResetEmail, {
+      email: user.email,
+      name: user.firstName,
+      otp,
+    });
+    c.var.logger.info(
+      `Job ${job.id} added to queue. Task scheduled for ${TASK.SendPasswordResetEmail}`
+    );
+  }
+
+  return c.json({
+    success: true,
+    message: "Password reset mail sent",
+  });
 };

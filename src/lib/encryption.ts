@@ -6,8 +6,8 @@ function generateOTP(length: number = 6): string {
   return crypto.randomInt(10 ** (length - 1), 10 ** length).toString();
 }
 
-export async function generateOrReuseOTP(userId: string): Promise<string> {
-  const key = `otp:${userId}`;
+export async function generateOrReuseOTP(userId: string, purpose: "activation" | "reset-password"): Promise<string> {
+  const key = `otp:${userId}:${purpose}`;
 
   // Check if OTP exists and is valid
   const existingOtp = await redis.get(key);
@@ -24,8 +24,8 @@ export async function generateOrReuseOTP(userId: string): Promise<string> {
   return otp;
 }
 
-export async function validateOTP(userId: string, otp: string): Promise<boolean> {
-  const key = `otp:${userId}`;
+export async function validateOTP(userId: string, otp: string, purpose: "activation" | "reset-password"): Promise<boolean> {
+  const key = `otp:${userId}:${purpose}`;
   const storedOtp = await redis.get(key);
 
   // Check if OTP matches

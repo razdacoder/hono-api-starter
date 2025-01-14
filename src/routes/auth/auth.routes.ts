@@ -130,7 +130,37 @@ export const login = createRoute({
   },
 });
 
+
+export const resetPassword = createRoute({
+  path: "/auth/reset-password",
+  method: "post",
+  tags,
+  request: {
+    body: jsonContentRequired(
+      z.object({
+        email: z.string().email(),
+      }),
+      "Password reset request body"
+    ),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      createSuccessSchema(),
+      "Password reset request sucessfull"
+    ),
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      createErrorSchema(
+        z.object({
+          email: z.string().email(),
+        })
+      ), "Password reset validation errors"
+    ),
+  },
+});
+
+
 export type RegisterRoute = typeof register;
 export type ResendActivationType = typeof resendActivation;
 export type ActivationType = typeof activation;
 export type LoginType = typeof login
+export type ResetPasswordType = typeof resetPassword
