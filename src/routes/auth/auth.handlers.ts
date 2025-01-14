@@ -5,6 +5,7 @@ import type {
   ActivationType,
   LoginType,
   ResetPasswordType,
+  ResetPasswordConfirmType,
 } from "./auth.routes.js";
 import { db } from "@/db/index.js";
 import { eq } from "drizzle-orm";
@@ -231,4 +232,31 @@ export const resetPassword: AppRouteHandler<ResetPasswordType> = async (c) => {
     success: true,
     message: "Password reset mail sent",
   });
+};
+
+export const resetPasswordConfirm: AppRouteHandler<
+  ResetPasswordConfirmType
+> = async (c) => {
+  const { email, otp, new_password, confirm_new_password } = c.req.valid("json");
+
+  const user = await getUserByEmail(email);
+
+  if (!user) {
+    return c.json({ success: false, message: "Invalid or exipred otp" }, 400);
+  }
+
+  const isValidOTP = await validateOTP(user.id, otp, "reset-password");
+
+  if (!isValidOTP) {
+    return c.json({ success: false, message: "Invalid or exipred otp" }, 400);
+  }
+
+  const hashedPassword = await argon2.hash(new_password);
+
+  await db
+    .update(users)
+    .set({ password: hashedPassword })
+    .where(eq(users.id, user.id));
+
+  return c.json({ success: true, message: "Password reset sucessfull" }, 200);
 };

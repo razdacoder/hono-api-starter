@@ -158,9 +158,52 @@ export const resetPassword = createRoute({
   },
 });
 
+export const resetPasswordConfirm = createRoute({
+  path: "/auth/reset-password-confirm",
+  method: "post",
+  tags,
+  request: {
+    body: jsonContentRequired(
+      z
+        .object({
+          email: z.string().email(),
+          otp: z.string().min(6).max(6),
+          new_password: z.string().min(8),
+          confirm_new_password: z.string().min(8),
+        })
+        .refine((data) => data.new_password === data.confirm_new_password, {
+          path: ["confirm_new_password"],
+        }),
+      "Reset Password Confirm Request Body"
+    ),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      createSuccessSchema(),
+      "Password reset sucessfull"
+    ),
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      createErrorSchema(
+        z
+          .object({
+            email: z.string().email(),
+            otp: z.string().min(6).max(6),
+            new_password: z.string().min(8),
+            confirm_new_password: z.string().min(8),
+          })
+          .refine((data) => data.new_password === data.confirm_new_password, {
+            path: ["confirm_new_password"],
+          })
+      ), "Password reset validation errors"
+    ),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(createErrorSchema(), "Bad request errors")
+  },
+});
+
 
 export type RegisterRoute = typeof register;
 export type ResendActivationType = typeof resendActivation;
 export type ActivationType = typeof activation;
 export type LoginType = typeof login
 export type ResetPasswordType = typeof resetPassword
+export type ResetPasswordConfirmType = typeof resetPasswordConfirm
