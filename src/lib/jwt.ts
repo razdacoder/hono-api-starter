@@ -1,9 +1,9 @@
-import env from '@/env.js';
-import { sign, verify } from 'hono/jwt';
-
+import env from "@/env.js";
+import { sign, verify } from "hono/jwt";
 
 type JWTPayload = {
-  [key: string]: unknown;
+  sub: string;
+  email: string;
   exp?: number;
 };
 
@@ -18,13 +18,13 @@ const encodeJWT = async (id: string, email: string, exp: number) => {
   const payload: JWTPayload = {
     sub: id,
     email: email,
-    exp: exp // Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, // Token expires in 30 days
+    exp: exp, // Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, // Token expires in 30 days
   };
   return await sign(payload, env.SECRET_KEY);
 };
 
 const verifyJWT = async (token: string): Promise<JWTPayload> => {
-  return await verify(token, env.SECRET_KEY);
+  return (await verify(token, env.SECRET_KEY)) as JWTPayload;
 };
 
 export { type JWTPayload, encodeJWT, verifyJWT };

@@ -1,11 +1,10 @@
-import configureOpenAPI from "@/lib/configure-open-api.js";
-import createApp from "@/lib/create-app.js";
-import auth from "@/routes/auth/auth.index.js"
+import configureOpenAPI from "@/lib/configure-open-api";
+import createApp from "@/lib/create-app";
+import auth from "@/routes/auth/auth.index";
+import users from "@/routes/users/users.index";
 
 const app = createApp();
-const routes = [
-  auth
-];
+const routes = [auth, users];
 configureOpenAPI(app);
 
 routes.forEach((route) => {
