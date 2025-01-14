@@ -14,17 +14,17 @@ type JWTPayload = {
  * @param {string} email - The email to be included in the token payload.
  * @return {Promise<string>} A promise that resolves to the encoded JWT token.
  */
-const encode = async (id: string, email: string) => {
+const encodeJWT = async (id: string, email: string, exp: number) => {
   const payload: JWTPayload = {
     sub: id,
     email: email,
-    exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, // Token expires in 30 days
+    exp: exp // Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, // Token expires in 30 days
   };
   return await sign(payload, env.SECRET_KEY);
 };
 
-const check = async (token: string): Promise<JWTPayload> => {
+const verifyJWT = async (token: string): Promise<JWTPayload> => {
   return await verify(token, env.SECRET_KEY);
 };
 
-export { type JWTPayload, encode };
+export { type JWTPayload, encodeJWT, verifyJWT };

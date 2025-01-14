@@ -60,10 +60,7 @@ export const resendActivation = createRoute({
       "Validation Errors"
     ),
     [HttpStatusCodes.BAD_REQUEST]: jsonContent(
-      z.object({
-        success: z.boolean().default(false),
-        message: z.string(),
-      }),
+     createErrorSchema(),
       "No user found"
     ),
   },
@@ -88,15 +85,52 @@ export const activation = createRoute({
       "Account activation sucessfull"
     ),
     [HttpStatusCodes.BAD_REQUEST]: jsonContent(
-      z.object({
-        success: z.boolean().default(false),
-        message: z.string(),
-      }),
+      createErrorSchema(),
       "Activation Invalid OTP"
     ),
+  },
+});
+
+export const login = createRoute({
+  path: "/auth/login",
+  method: "post",
+  tags,
+  request: {
+    body: jsonContentRequired(
+      z.object({
+        email: z.string().email(),
+        password: z.string().min(8),
+      }),
+      "Request body for login"
+    ),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      createSuccessSchema(
+        z.object({
+          access_token: z.string(),
+          refresh_token: z.string(),
+          user: userSelectSchema,
+        })
+      ),
+      "Login sucessfull response"
+    ),
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      createErrorSchema(
+        z.object({
+          email: z.string().email(),
+          password: z.string().min(8),
+        })
+      ),
+      "Validation errors for login"
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(createErrorSchema(z.object({
+      verify_email: z.boolean().optional()
+    })), "Invalid Credentials Error"),
   },
 });
 
 export type RegisterRoute = typeof register;
 export type ResendActivationType = typeof resendActivation;
 export type ActivationType = typeof activation;
+export type LoginType = typeof login

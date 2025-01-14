@@ -3,15 +3,17 @@ import type {
   RegisterRoute,
   ResendActivationType,
   ActivationType,
+  LoginType,
 } from "./auth.routes.js";
 import { db } from "@/db/index.js";
 import { eq } from "drizzle-orm";
 import { users } from "@/db/schema/users.js";
 import argon2 from "argon2";
-import { userSelect } from "@/services/users.js";
+import { userSelect, getUserByEmail } from "@/services/users.js";
 import { defaultQueue, connection as redis } from "@/lib/queue.js";
 import { TASK } from "@/tasks/index.js";
 import { generateOrReuseOTP, validateOTP } from "@/lib/encryption.js";
+import { encodeJWT, JWTPayload } from "@/lib/jwt.js";
 
 export const register: AppRouteHandler<RegisterRoute> = async (c) => {
   const { firstName, lastName, email, password } = c.req.valid("json");
@@ -132,6 +134,76 @@ export const activation: AppRouteHandler<ActivationType> = async (c) => {
     {
       success: true,
       message: "Account activated successfully",
+    },
+    200
+  );
+};
+
+export const login: AppRouteHandler<LoginType> = async (c) => {
+  const { email, password } = c.req.valid("json");
+
+  const [user] = await db.select().from(users).where(eq(users.email, email));
+
+  if (!user || !(await argon2.verify(user.password, password))) {
+    return c.json(
+      { success: false, message: "Invalid email or password" },
+      401
+    );
+  }
+
+  if (!user.isActive) {
+    return c.json(
+      {
+        success: false,
+        message: "Account not active",
+      },
+      401
+    );
+  }
+
+  if (!user.email_verified) {
+    const otp = await generateOrReuseOTP(user.id);
+
+    const job = await defaultQueue.add(TASK.SendActivationEmail, {
+      email: user.email,
+      otp: otp,
+    });
+    c.var.logger.info(
+      `Job ${job.id} added to queue. Task scheduled for ${TASK.SendActivationEmail}`
+    );
+    return c.json(
+      {
+        success: false,
+        message: "Invalid email or password",
+        data: {
+          verify_email: true,
+        },
+      },
+      401
+    );
+  }
+
+  const access_token = await encodeJWT(
+    user.id,
+    user.email,
+    Math.floor(Date.now() / 1000) + 60 * 5
+  );
+
+  const refresh_token = await encodeJWT(
+    user.id,
+    user.email,
+    Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 5
+  );
+
+  return c.json(
+    {
+      success: true,
+      message: "Login sucessfull",
+      data: {
+        access_token,
+        refresh_token,
+        user: { ...user, password: undefined },
+      },
     },
     200
   );
