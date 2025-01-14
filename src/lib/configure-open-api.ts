@@ -13,7 +13,7 @@ export default function configureOpenAPI(app: AppOpenAPI) {
   });
 
   app.get(
-    "/docs",
+    "/",
     apiReference({
       theme: "kepler",
       spec: {
