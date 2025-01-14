@@ -14,7 +14,7 @@ import argon2 from "argon2";
 import { userSelect, getUserByEmail } from "@/services/users.js";
 import { defaultQueue } from "@/lib/queue.js";
 import { TASK } from "@/tasks/index.js";
-import { generateOrReuseOTP, validateOTP } from "@/lib/encryption.js";
+import { generateOrReuseOTP, validateOTP, invalidateOTP } from "@/lib/encryption.js";
 import { encodeJWT } from "@/lib/jwt.js";
 
 export const register: AppRouteHandler<RegisterRoute> = async (c) => {
@@ -131,6 +131,8 @@ export const activation: AppRouteHandler<ActivationType> = async (c) => {
   c.var.logger.info(
     `Job ${job.id} added to queue. Task scheduled for ${TASK.SendWelcomeEmail}`
   );
+
+  await invalidateOTP(user.id, "activation")
 
   return c.json(
     {
@@ -257,6 +259,8 @@ export const resetPasswordConfirm: AppRouteHandler<
     .update(users)
     .set({ password: hashedPassword })
     .where(eq(users.id, user.id));
+
+  await invalidateOTP(user.id, "reset-password")
 
   return c.json({ success: true, message: "Password reset sucessfull" }, 200);
 };
