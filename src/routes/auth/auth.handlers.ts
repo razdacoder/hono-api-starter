@@ -1,5 +1,9 @@
 import type { AppRouteHandler } from "@/lib/types.js";
-import type { RegisterRoute, ResendActivationType, ActivationType } from "./auth.routes.js";
+import type {
+  RegisterRoute,
+  ResendActivationType,
+  ActivationType,
+} from "./auth.routes.js";
 import { db } from "@/db/index.js";
 import { eq } from "drizzle-orm";
 import { users } from "@/db/schema/users.js";
@@ -83,29 +87,52 @@ export const resendActivation: AppRouteHandler<ResendActivationType> = async (
 };
 
 export const activation: AppRouteHandler<ActivationType> = async (c) => {
-  const {email, otp } = c.req.valid("json")
-  const [user] = await db.select(userSelect).from(users).where(eq(users.email, email))
+  const { email, otp } = c.req.valid("json");
+  const [user] = await db
+    .select(userSelect)
+    .from(users)
+    .where(eq(users.email, email));
 
   if (!user) {
-    return c.json({
-      success: false,
-      message: "Invalid OTP"
-    }, 400)
+    return c.json(
+      {
+        success: false,
+        message: "Invalid OTP",
+      },
+      400
+    );
   }
 
-  const isValidOTP = await validateOTP(user.id, otp)
+  const isValidOTP = await validateOTP(user.id, otp);
 
   if (!isValidOTP) {
-    return c.json({
-      success: false,
-      message: "Invalid or Expired OTP"
-    }, 400)
+    return c.json(
+      {
+        success: false,
+        message: "Invalid or Expired OTP",
+      },
+      400
+    );
   }
 
-  await db.update(users).set({isActive: true, email_verified: true}).where(eq(users.id, user.id))
+  await db
+    .update(users)
+    .set({ isActive: true, email_verified: true })
+    .where(eq(users.id, user.id));
 
-  return c.json({
-    success: true,
-    message: "Account activated successfully"
-  }, 200)
-}
+  const job = await defaultQueue.add(TASK.SendWelcomeEmail, {
+    email: user.email,
+    name: user.firstName,
+  });
+  c.var.logger.info(
+    `Job ${job.id} added to queue. Task scheduled for ${TASK.SendWelcomeEmail}`
+  );
+
+  return c.json(
+    {
+      success: true,
+      message: "Account activated successfully",
+    },
+    200
+  );
+};
