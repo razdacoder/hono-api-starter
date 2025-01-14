@@ -9,7 +9,7 @@ import { createSuccessSchema } from "@/utils/create-success-schema";
 const tags = ["Auth"];
 
 export const register = createRoute({
-  path: "/register",
+  path: "/auth/register",
   tags,
   method: "post",
   request: {
@@ -35,7 +35,7 @@ export const register = createRoute({
 });
 
 export const resendActivation = createRoute({
-  path: "/resend-activation",
+  path: "/auth/resend-activation",
   tags,
   method: "post",
   request: {
@@ -70,7 +70,7 @@ export const resendActivation = createRoute({
 });
 
 export const activation = createRoute({
-  path: "/activation",
+  path: "/auth/activation",
   method: "post",
   tags,
   request: {

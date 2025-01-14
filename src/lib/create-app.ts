@@ -1,7 +1,7 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
-import { compress } from 'hono/compress';
-import { cors } from 'hono/cors';
-import { trimTrailingSlash } from 'hono/trailing-slash';
+import { compress } from "hono/compress";
+import { cors } from "hono/cors";
+import { trimTrailingSlash } from "hono/trailing-slash";
 
 import type { AppBindings } from "@/lib/types.js";
 
@@ -29,12 +29,11 @@ export default function createApp() {
   app.notFound(notFound);
   app.onError(onError);
 
-
   const tasker = createTasker();
   const worker = tasker.setup();
 
-  worker.on('ready', () => {
-    console.log('Worker is ready and listening for jobs!');
+  worker.on("ready", () => {
+    console.log("Worker is ready and listening for jobs!");
   });
 
   return app;
