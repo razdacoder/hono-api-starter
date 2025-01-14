@@ -41,7 +41,7 @@ export const resendActivation = createRoute({
   request: {
     body: jsonContentRequired(
       z.object({
-        email: z.string().email({ message: "Invalid email address" }),
+        email: z.string().email(),
       }),
       "Resend activation request body"
     ),
@@ -87,17 +87,16 @@ export const activation = createRoute({
       createSuccessSchema(),
       "Account activation sucessfull"
     ),
-    [HttpStatusCodes.BAD_REQUEST]: 
-      jsonContent(
-        z.object({
-          success: z.boolean().default(false),
-          message: z.string(),
-        }),
-        "Activation Invalid OTP"
-      ),
-    
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      z.object({
+        success: z.boolean().default(false),
+        message: z.string(),
+      }),
+      "Activation Invalid OTP"
+    ),
   },
 });
+
 export type RegisterRoute = typeof register;
 export type ResendActivationType = typeof resendActivation;
-export type ActivationType = typeof activation
+export type ActivationType = typeof activation;
