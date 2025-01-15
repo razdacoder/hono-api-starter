@@ -1,11 +1,11 @@
-import { html } from 'hono/html'
+import { html } from "hono/html";
 
-type Props = {
-    otp: string
-}
+interface Props {
+  otp: string;
+};
 
-const ActivationEmail = ({otp}: Props) => {
-    return html`
+function ActivationEmail({ otp }: Props) {
+  return html`
         <!DOCTYPE html>
     <html lang="en">
         <head>
@@ -83,7 +83,7 @@ const ActivationEmail = ({otp}: Props) => {
             </div>
         </body>
     </html>
-    `
+    `;
 }
 
-export default ActivationEmail
+export default ActivationEmail;

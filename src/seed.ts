@@ -1,6 +1,8 @@
 import argon2 from "argon2";
+
 import { db } from "./db";
 import { users } from "./db/schema/users";
+import { logger } from "./lib/logger";
 
 async function seedDatabase() {
   try {
@@ -15,9 +17,10 @@ async function seedDatabase() {
       email_verified: true,
       password: hashedPassword,
     });
-    console.log("Admin user created successfully!");
-  } catch (error) {
-    console.error("Error seeding the database:", error);
+    logger.info("Admin user created successfully!");
+  }
+  catch (error) {
+    logger.error("Error seeding the database:", error);
   }
 }
 
@@ -25,7 +28,6 @@ seedDatabase()
   .then(() => {
     process.exit(0); // Exit the script
   })
-  .catch((err) => {
-    console.error("Error during seeding:", err);
+  .catch(() => {
     process.exit(1);
   });

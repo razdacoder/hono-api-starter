@@ -1,9 +1,11 @@
 import { type Job, Worker } from "bullmq";
-import { QUEUE, connection, defaultQueue } from "@/lib/queue.js";
-import sendWelcomeEmail from "./emails/sendWelcomeEmail.js";
+
 import { logger } from "@/lib/logger.js";
-import sendActivationEmail from "./emails/sendActivationEmail.js";
-import sendPasswordResetEmail from "./emails/sendPasswordResetEmail.js";
+import { connection, QUEUE } from "@/lib/queue.js";
+
+import sendActivationEmail from "./emails/send-activation-email.js";
+import sendPasswordResetEmail from "./emails/send-password-reset-email.js";
+import sendWelcomeEmail from "./emails/send-welcome-email.js";
 
 const TASK = {
   SendWelcomeEmail: "SendWelcomeEmail",
@@ -11,7 +13,7 @@ const TASK = {
   SendPasswordResetEmail: "SendPasswordResetEmail",
 };
 
-const createTasker = () => {
+function createTasker() {
   const processor = async (job: Job) => {
     switch (job.name) {
       case TASK.SendWelcomeEmail: {
@@ -45,9 +47,10 @@ const createTasker = () => {
     worker.on("failed", (job: Job | undefined, error: Error) => {
       if (job) {
         logger.error(
-          `Job ${job.id} failed, task name: ${job.name}, error: ${error.message}`
+          `Job ${job.id} failed, task name: ${job.name}, error: ${error.message}`,
         );
-      } else {
+      }
+      else {
         logger.error(`Job failed, error: ${error.message}`);
       }
     });
@@ -60,6 +63,6 @@ const createTasker = () => {
   };
 
   return { setup };
-};
+}
 
-export { TASK, createTasker };
+export { createTasker, TASK };

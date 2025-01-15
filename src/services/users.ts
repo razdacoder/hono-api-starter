@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
-import { users } from "@/db/schema/users.js";
+
 import { db } from "@/db";
+import { users } from "@/db/schema/users.js";
 
 export const userSelect = {
   id: users.id,
@@ -14,19 +15,19 @@ export const userSelect = {
   deletedAt: users.deletedAt,
 };
 
-export const getUserByEmail = async (email: string) => {
+export async function getUserByEmail(email: string) {
   const [user] = await db
     .select(userSelect)
     .from(users)
     .where(eq(users.email, email));
   return user;
-};
+}
 
-export const getUserById = async (id: string) => {
+export async function getUserById(id: string) {
   const [user] = await db
     .select(userSelect)
     .from(users)
     .where(eq(users.id, id));
 
   return user;
-};
+}

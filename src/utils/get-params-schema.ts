@@ -15,10 +15,10 @@ const examples: Record<Validator, string> = {
   ulid: "01ARZ3NDEKTSV4RRFFQ69G5FAV",
 };
 
-const getParamsSchema = ({
+function getParamsSchema({
   name = "id",
   validator = "uuid",
-}: ParamsSchema) => {
+}: ParamsSchema) {
   return z.object({
     [name]: z.string()[validator]().openapi({
       param: {
@@ -30,6 +30,6 @@ const getParamsSchema = ({
       example: examples[validator],
     }),
   });
-};
+}
 
 export default getParamsSchema;

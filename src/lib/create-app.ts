@@ -3,7 +3,6 @@ import { compress } from "hono/compress";
 import { cors } from "hono/cors";
 import { trimTrailingSlash } from "hono/trailing-slash";
 
-
 import type { AppBindings } from "@/lib/types";
 
 import notFound from "@/middlewares/not-found";
@@ -34,6 +33,7 @@ export default function createApp() {
   const worker = tasker.setup();
 
   worker.on("ready", () => {
+    // eslint-disable-next-line no-console
     console.log("Worker is ready and listening for jobs!");
   });
 

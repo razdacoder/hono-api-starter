@@ -15,6 +15,7 @@ export default antfu(
     },
   },
   {
+    ignores: ["@/dbmigrations/"],
     rules: {
       "no-console": ["warn"],
       "antfu/no-top-level-await": ["off"],
@@ -26,13 +27,13 @@ export default antfu(
           internalPattern: ["@/**"],
         },
       ],
-      "unicorn/filename-case": [
-        "error",
-        {
-          case: "kebabCase",
-          ignore: ["README.md"],
-        },
-      ],
+      // "unicorn/filename-case": [
+      //   "error",
+      //   {
+      //     case: "kebabCase",
+      //     ignore: ["README.md"],
+      //   },
+      // ],
     },
   },
 );

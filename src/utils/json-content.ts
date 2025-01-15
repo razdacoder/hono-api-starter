@@ -1,11 +1,8 @@
 import type { ZodSchema } from "@/lib/types.js";
 
-
-const jsonContent = <
+function jsonContent<
   T extends ZodSchema,
->(schema: T,
-  description: string,
-) => {
+>(schema: T, description: string) {
   return {
     content: {
       "application/json": {
@@ -14,6 +11,6 @@ const jsonContent = <
     },
     description,
   };
-};
+}
 
 export default jsonContent;

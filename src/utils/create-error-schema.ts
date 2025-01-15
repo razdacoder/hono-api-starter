@@ -1,10 +1,11 @@
-import type { ZodSchema } from "@/lib/types.js";
 import { z } from "@hono/zod-openapi";
 
-const createErrorSchema = (schema?: ZodSchema) => {
+import type { ZodSchema } from "@/lib/types.js";
+
+function createErrorSchema(schema?: ZodSchema) {
   if (schema) {
     const { error } = schema.safeParse(
-      schema._def.typeName === z.ZodFirstPartyTypeKind.ZodArray ? [] : {}
+      schema._def.typeName === z.ZodFirstPartyTypeKind.ZodArray ? [] : {},
     );
     return z.object({
       success: z.boolean().openapi({
@@ -18,7 +19,7 @@ const createErrorSchema = (schema?: ZodSchema) => {
               code: z.string(),
               path: z.array(z.union([z.string(), z.number()])),
               message: z.string().optional(),
-            })
+            }),
           ),
           name: z.string(),
         })
@@ -33,6 +34,6 @@ const createErrorSchema = (schema?: ZodSchema) => {
     }),
     message: z.string(),
   });
-};
+}
 
 export default createErrorSchema;

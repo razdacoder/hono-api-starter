@@ -17,7 +17,7 @@ const EnvSchema = z.object({
   EMAIL_USER: z.string(),
   EMAIL_PASSWORD: z.string(),
   REDIS_PORT: z.coerce.number().default(6379),
-  REDIS_HOST: z.string().default("localhost")
+  REDIS_HOST: z.string().default("localhost"),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

@@ -1,10 +1,11 @@
-import { createRoute, z } from "@hono/zod-openapi";
-import * as HttpStatusCodes from "@/utils/http-status-code";
-import jsonContent from "@/utils/jsonContent.js";
-import createErrorSchema from "@/utils/create-error-schema";
-import { createSuccessSchema } from "@/utils/create-success-schema";
+import { createRoute } from "@hono/zod-openapi";
+
 import { userSelectSchema } from "@/db/schema/users";
 import { authCheck } from "@/middlewares/auth";
+import createErrorSchema from "@/utils/create-error-schema";
+import { createSuccessSchema } from "@/utils/create-success-schema";
+import * as HttpStatusCodes from "@/utils/http-status-code";
+import jsonContent from "@/utils/json-content.js";
 
 const tags = ["Users"];
 
@@ -16,11 +17,11 @@ export const me = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(userSelectSchema),
-      "The current logged in user"
+      "The current logged in user",
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       createErrorSchema(),
-      "Unauthorized user errorrs"
+      "Unauthorized user errorrs",
     ),
   },
   security: [
@@ -29,6 +30,5 @@ export const me = createRoute({
     },
   ],
 });
-
 
 export type Me = typeof me;

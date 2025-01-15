@@ -1,29 +1,30 @@
-import { setCookie } from "hono/cookie";
-import type { AppRouteHandler } from "@/lib/types.js";
-import env from "@/env";
-import type {
-  RegisterRoute,
-  ResendActivationType,
-  ActivationType,
-  LoginType,
-  ResetPasswordType,
-  ResetPasswordConfirmType,
-  RefreshTokenType,
-  VerifyTokenType,
-} from "./auth.routes.js";
-import { db } from "@/db/index.js";
-import { eq } from "drizzle-orm";
-import { users } from "@/db/schema/users.js";
 import argon2 from "argon2";
-import { userSelect, getUserByEmail } from "@/services/users.js";
-import { defaultQueue } from "@/lib/queue.js";
-import { TASK } from "@/tasks/index.js";
+import { eq } from "drizzle-orm";
+
+import type { AppRouteHandler } from "@/lib/types.js";
+
+import { db } from "@/db/index.js";
+import { users } from "@/db/schema/users.js";
 import {
   generateOrReuseOTP,
-  validateOTP,
   invalidateOTP,
+  validateOTP,
 } from "@/lib/encryption.js";
 import { encodeJWT, verifyJWT } from "@/lib/jwt.js";
+import { defaultQueue } from "@/lib/queue.js";
+import { getUserByEmail, userSelect } from "@/services/users.js";
+import { TASK } from "@/tasks/index.js";
+
+import type {
+  ActivationType,
+  LoginType,
+  RefreshTokenType,
+  RegisterRoute,
+  ResendActivationType,
+  ResetPasswordConfirmType,
+  ResetPasswordType,
+  VerifyTokenType,
+} from "./auth.routes.js";
 
 export const register: AppRouteHandler<RegisterRoute> = async (c) => {
   const { firstName, lastName, email, password } = c.req.valid("json");
@@ -53,10 +54,10 @@ export const register: AppRouteHandler<RegisterRoute> = async (c) => {
 
   const job = await defaultQueue.add(TASK.SendActivationEmail, {
     email: user.email,
-    otp: otp,
+    otp,
   });
   c.var.logger.info(
-    `Job ${job.id} added to queue. Task scheduled for ${TASK.SendActivationEmail}`
+    `Job ${job.id} added to queue. Task scheduled for ${TASK.SendActivationEmail}`,
   );
   return c.json(
     {
@@ -64,12 +65,12 @@ export const register: AppRouteHandler<RegisterRoute> = async (c) => {
       message: "User created Successfully",
       data: user,
     },
-    201
+    201,
   );
 };
 
 export const resendActivation: AppRouteHandler<ResendActivationType> = async (
-  c
+  c,
 ) => {
   const { email } = c.req.valid("json");
   const [user] = await db
@@ -83,10 +84,10 @@ export const resendActivation: AppRouteHandler<ResendActivationType> = async (
 
   const job = await defaultQueue.add(TASK.SendActivationEmail, {
     email: user.email,
-    otp: otp,
+    otp,
   });
   c.var.logger.info(
-    `Job ${job.id} added to queue. Task scheduled for ${TASK.SendActivationEmail}`
+    `Job ${job.id} added to queue. Task scheduled for ${TASK.SendActivationEmail}`,
   );
 
   return c.json(
@@ -94,7 +95,7 @@ export const resendActivation: AppRouteHandler<ResendActivationType> = async (
       success: true,
       message: "OTP resend successfull",
     },
-    200
+    200,
   );
 };
 
@@ -111,7 +112,7 @@ export const activation: AppRouteHandler<ActivationType> = async (c) => {
         success: false,
         message: "Invalid OTP",
       },
-      400
+      400,
     );
   }
 
@@ -123,7 +124,7 @@ export const activation: AppRouteHandler<ActivationType> = async (c) => {
         success: false,
         message: "Invalid or Expired OTP",
       },
-      400
+      400,
     );
   }
 
@@ -137,7 +138,7 @@ export const activation: AppRouteHandler<ActivationType> = async (c) => {
     name: user.firstName,
   });
   c.var.logger.info(
-    `Job ${job.id} added to queue. Task scheduled for ${TASK.SendWelcomeEmail}`
+    `Job ${job.id} added to queue. Task scheduled for ${TASK.SendWelcomeEmail}`,
   );
 
   await invalidateOTP(user.id, "activation");
@@ -147,7 +148,7 @@ export const activation: AppRouteHandler<ActivationType> = async (c) => {
       success: true,
       message: "Account activated successfully",
     },
-    200
+    200,
   );
 };
 
@@ -159,7 +160,7 @@ export const login: AppRouteHandler<LoginType> = async (c) => {
   if (!user || !(await argon2.verify(user.password, password))) {
     return c.json(
       { success: false, message: "Invalid email or password" },
-      401
+      401,
     );
   }
 
@@ -169,7 +170,7 @@ export const login: AppRouteHandler<LoginType> = async (c) => {
         success: false,
         message: "Account not active",
       },
-      401
+      401,
     );
   }
 
@@ -178,10 +179,10 @@ export const login: AppRouteHandler<LoginType> = async (c) => {
 
     const job = await defaultQueue.add(TASK.SendActivationEmail, {
       email: user.email,
-      otp: otp,
+      otp,
     });
     c.var.logger.info(
-      `Job ${job.id} added to queue. Task scheduled for ${TASK.SendActivationEmail}`
+      `Job ${job.id} added to queue. Task scheduled for ${TASK.SendActivationEmail}`,
     );
     return c.json(
       {
@@ -191,20 +192,20 @@ export const login: AppRouteHandler<LoginType> = async (c) => {
           verify_email: true,
         },
       },
-      401
+      401,
     );
   }
 
   const access_token = await encodeJWT(
     user.id,
     user.email,
-    Math.floor(Date.now() / 1000) + 60 * 5
+    Math.floor(Date.now() / 1000) + 60 * 5,
   );
 
   const refresh_token = await encodeJWT(
     user.id,
     user.email,
-    Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 5 // Expiry in 5 days
+    Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 5, // Expiry in 5 days
   );
 
   // setCookie(c, "refresh_token", refresh_token, {
@@ -227,7 +228,7 @@ export const login: AppRouteHandler<LoginType> = async (c) => {
         user: { ...user, password: undefined },
       },
     },
-    200
+    200,
   );
 };
 
@@ -244,7 +245,7 @@ export const resetPassword: AppRouteHandler<ResetPasswordType> = async (c) => {
       otp,
     });
     c.var.logger.info(
-      `Job ${job.id} added to queue. Task scheduled for ${TASK.SendPasswordResetEmail}`
+      `Job ${job.id} added to queue. Task scheduled for ${TASK.SendPasswordResetEmail}`,
     );
   }
 
@@ -257,8 +258,8 @@ export const resetPassword: AppRouteHandler<ResetPasswordType> = async (c) => {
 export const resetPasswordConfirm: AppRouteHandler<
   ResetPasswordConfirmType
 > = async (c) => {
-  const { email, otp, new_password, confirm_new_password } =
-    c.req.valid("json");
+  const { email, otp, new_password }
+    = c.req.valid("json");
 
   const user = await getUserByEmail(email);
 
@@ -292,7 +293,7 @@ export const refreshToken: AppRouteHandler<RefreshTokenType> = async (c) => {
     const access_token = await encodeJWT(
       payload.sub,
       payload.email,
-      Math.floor(Date.now() / 1000) + 60 * 5
+      Math.floor(Date.now() / 1000) + 60 * 5,
     );
 
     return c.json(
@@ -303,9 +304,11 @@ export const refreshToken: AppRouteHandler<RefreshTokenType> = async (c) => {
           access_token,
         },
       },
-      200
+      200,
     );
-  } catch (e) {
+  }
+  catch (e) {
+    c.var.logger.error(e);
     return c.json({ success: false, message: "Unauthorized" }, 401);
   }
 };
@@ -313,6 +316,6 @@ export const refreshToken: AppRouteHandler<RefreshTokenType> = async (c) => {
 export const verifyToken: AppRouteHandler<VerifyTokenType> = async (c) => {
   return c.json(
     { success: true, message: "Token verification Sucessuful" },
-    200
+    200,
   );
 };

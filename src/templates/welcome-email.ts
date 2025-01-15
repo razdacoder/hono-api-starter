@@ -1,10 +1,10 @@
 import { html } from "hono/html";
 
-type Props = {
+interface Props {
   name: string;
-};
+}
 
-const WelcomeEmail = ({ name }: Props) => {
+function WelcomeEmail({ name }: Props) {
   return html`
     <!doctype html>
     <html lang="en">
@@ -97,6 +97,6 @@ const WelcomeEmail = ({ name }: Props) => {
       </body>
     </html>
   `;
-};
+}
 
 export default WelcomeEmail;

@@ -1,13 +1,13 @@
-import WelcomeEmail from "@/templates/welcome-email";
 import { sendEmail } from "@/lib/email";
+import WelcomeEmail from "@/templates/welcome-email";
 
-const sendWelcomeEmail = async ({
+async function sendWelcomeEmail({
   name,
   email,
 }: {
   name: string;
   email: string;
-}) => {
+}) {
   const html = await WelcomeEmail({ name }).toString();
   await sendEmail({
     from: "noreply@example.com",
@@ -15,6 +15,6 @@ const sendWelcomeEmail = async ({
     subject: "Welcome to Hono API Starter",
     html,
   });
-};
+}
 
 export default sendWelcomeEmail;

@@ -1,7 +1,8 @@
-import type { ZodSchema } from "@/lib/types.js";
 import { z } from "@hono/zod-openapi";
 
-export const createSuccessSchema = (schema?: ZodSchema) => {
+import type { ZodSchema } from "@/lib/types.js";
+
+export function createSuccessSchema(schema?: ZodSchema) {
   if (schema) {
     return z.object({
       success: z
@@ -23,4 +24,4 @@ export const createSuccessSchema = (schema?: ZodSchema) => {
       .default(true),
     message: z.string(),
   });
-};
+}

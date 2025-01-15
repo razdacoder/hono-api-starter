@@ -1,13 +1,13 @@
-import env from '@/env.js';
-import { Queue } from 'bullmq';
-import { default as IORedis } from "ioredis"
+import { Queue } from "bullmq";
+import IORedis from "ioredis";
 
+import env from "@/env.js";
 
 const QUEUE = {
-  default: 'default',
+  default: "default",
 };
 
-const connection = new IORedis.default({
+const connection = new IORedis({
   port: env.REDIS_PORT,
   host: env.REDIS_HOST,
   maxRetriesPerRequest: null,
@@ -27,4 +27,4 @@ const defaultQueue = new Queue(QUEUE.default, {
   },
 });
 
-export { QUEUE, connection, defaultQueue };
+export { connection, defaultQueue, QUEUE };

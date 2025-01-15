@@ -1,4 +1,5 @@
-import crypto from "crypto";
+import crypto from "node:crypto";
+
 import { connection as redis } from "@/lib/queue.js";
 
 function generateOTP(length: number = 6): string {
@@ -7,7 +8,7 @@ function generateOTP(length: number = 6): string {
 
 export async function generateOrReuseOTP(
   userId: string,
-  purpose: "activation" | "reset-password"
+  purpose: "activation" | "reset-password",
 ): Promise<string> {
   const key = `otp:${userId}:${purpose}`;
 
@@ -29,7 +30,7 @@ export async function generateOrReuseOTP(
 export async function validateOTP(
   userId: string,
   otp: string,
-  purpose: "activation" | "reset-password"
+  purpose: "activation" | "reset-password",
 ): Promise<boolean> {
   const key = `otp:${userId}:${purpose}`;
   const storedOtp = await redis.get(key);
@@ -40,7 +41,7 @@ export async function validateOTP(
 
 export async function invalidateOTP(
   userId: string,
-  purpose: "activation" | "reset-password"
+  purpose: "activation" | "reset-password",
 ): Promise<void> {
   const key = `otp:${userId}:${purpose}`;
   await redis.del(key);

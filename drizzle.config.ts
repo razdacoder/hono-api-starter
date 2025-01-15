@@ -5,6 +5,7 @@ export default defineConfig({
   schema: "./src/db/schema/*",
   out: "./src/db/migrations",
   dbCredentials: {
-    url: process.env.DATABASE_URL!
-  }
+    // eslint-disable-next-line node/no-process-env
+    url: process.env.DATABASE_URL!,
+  },
 });

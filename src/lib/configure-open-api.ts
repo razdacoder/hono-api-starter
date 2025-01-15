@@ -1,4 +1,5 @@
 import { apiReference } from "@scalar/hono-api-reference";
+
 import type { AppOpenAPI } from "./types.js";
 
 import packageJSON from "../../package.json";
@@ -29,6 +30,6 @@ export default function configureOpenAPI(app: AppOpenAPI) {
         targetKey: "javascript",
         clientKey: "axios",
       },
-    })
+    }),
   );
 }

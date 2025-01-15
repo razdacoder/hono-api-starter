@@ -1,11 +1,12 @@
 import { createRoute, z } from "@hono/zod-openapi";
-import * as HttpStatusCodes from "@/utils/http-status-code.js";
-import jsonContent from "@/utils/jsonContent.js";
+
 import { userInsertSchema, userSelectSchema } from "@/db/schema/users.js";
-import jsonContentRequired from "@/utils/jsonContentRequired.js";
+import { authCheck } from "@/middlewares/auth";
 import createErrorSchema from "@/utils/create-error-schema.js";
 import { createSuccessSchema } from "@/utils/create-success-schema";
-import { authCheck } from "@/middlewares/auth";
+import * as HttpStatusCodes from "@/utils/http-status-code.js";
+import jsonContentRequired from "@/utils/json-content-required.js";
+import jsonContent from "@/utils/json-content.js";
 
 const tags = ["Auth"];
 
@@ -19,18 +20,18 @@ export const register = createRoute({
   responses: {
     [HttpStatusCodes.CREATED]: jsonContent(
       createSuccessSchema(userSelectSchema),
-      "The user created"
+      "The user created",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(userInsertSchema),
-      "User creation validation errors"
+      "User creation validation errors",
     ),
     [HttpStatusCodes.BAD_REQUEST]: jsonContent(
       z.object({
         success: z.boolean().default(false),
         message: z.string(),
       }),
-      "User already exists error"
+      "User already exists error",
     ),
   },
 });
@@ -44,25 +45,25 @@ export const resendActivation = createRoute({
       z.object({
         email: z.string().email(),
       }),
-      "Resend activation request body"
+      "Resend activation request body",
     ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(),
-      "The user created"
+      "The user created",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(
         z.object({
           email: z.string().email({ message: "Invalid email address" }),
-        })
+        }),
       ),
-      "Validation Errors"
+      "Validation Errors",
     ),
     [HttpStatusCodes.BAD_REQUEST]: jsonContent(
-     createErrorSchema(),
-      "No user found"
+      createErrorSchema(),
+      "No user found",
     ),
   },
 });
@@ -77,17 +78,17 @@ export const activation = createRoute({
         email: z.string().email({ message: "Invalid email address" }),
         otp: z.string().min(6).max(6),
       }),
-      "Activation request body"
+      "Activation request body",
     ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(),
-      "Account activation sucessfull"
+      "Account activation sucessfull",
     ),
     [HttpStatusCodes.BAD_REQUEST]: jsonContent(
       createErrorSchema(),
-      "Activation Invalid OTP"
+      "Activation Invalid OTP",
     ),
   },
 });
@@ -102,7 +103,7 @@ export const login = createRoute({
         email: z.string().email(),
         password: z.string().min(8),
       }),
-      "Request body for login"
+      "Request body for login",
     ),
   },
   responses: {
@@ -112,25 +113,29 @@ export const login = createRoute({
           access_token: z.string(),
           refresh_token: z.string(),
           user: userSelectSchema,
-        })
+        }),
       ),
-      "Login sucessfull response"
+      "Login sucessfull response",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(
         z.object({
           email: z.string().email(),
           password: z.string().min(8),
-        })
+        }),
       ),
-      "Validation errors for login"
+      "Validation errors for login",
     ),
-    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(createErrorSchema(z.object({
-      verify_email: z.boolean().optional()
-    })), "Invalid Credentials Error"),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      createErrorSchema(
+        z.object({
+          verify_email: z.boolean().optional(),
+        }),
+      ),
+      "Invalid Credentials Error",
+    ),
   },
 });
-
 
 export const resetPassword = createRoute({
   path: "/reset-password",
@@ -141,20 +146,21 @@ export const resetPassword = createRoute({
       z.object({
         email: z.string().email(),
       }),
-      "Password reset request body"
+      "Password reset request body",
     ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(),
-      "Password reset request sucessfull"
+      "Password reset request sucessfull",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(
         z.object({
           email: z.string().email(),
-        })
-      ), "Password reset validation errors"
+        }),
+      ),
+      "Password reset validation errors",
     ),
   },
 });
@@ -172,16 +178,16 @@ export const resetPasswordConfirm = createRoute({
           new_password: z.string().min(8),
           confirm_new_password: z.string().min(8),
         })
-        .refine((data) => data.new_password === data.confirm_new_password, {
+        .refine(data => data.new_password === data.confirm_new_password, {
           path: ["confirm_new_password"],
         }),
-      "Reset Password Confirm Request Body"
+      "Reset Password Confirm Request Body",
     ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(),
-      "Password reset sucessfull"
+      "Password reset sucessfull",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(
@@ -192,12 +198,16 @@ export const resetPasswordConfirm = createRoute({
             new_password: z.string().min(8),
             confirm_new_password: z.string().min(8),
           })
-          .refine((data) => data.new_password === data.confirm_new_password, {
+          .refine(data => data.new_password === data.confirm_new_password, {
             path: ["confirm_new_password"],
-          })
-      ), "Password reset validation errors"
+          }),
+      ),
+      "Password reset validation errors",
     ),
-    [HttpStatusCodes.BAD_REQUEST]: jsonContent(createErrorSchema(), "Bad request errors")
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      createErrorSchema(),
+      "Bad request errors",
+    ),
   },
 });
 
@@ -210,7 +220,7 @@ export const refreshToken = createRoute({
       z.object({
         refresh_token: z.string(),
       }),
-      "Refresh token request body"
+      "Refresh token request body",
     ),
   },
   responses: {
@@ -218,16 +228,20 @@ export const refreshToken = createRoute({
       createSuccessSchema(
         z.object({
           access_token: z.string(),
-        })
+        }),
       ),
-      "Refresh token successfull"
+      "Refresh token successfull",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       z.object({
         refresh_token: z.string(),
-      }), "Refresh token validation errors"
+      }),
+      "Refresh token validation errors",
     ),
-    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(createErrorSchema(), "Unauthoried error")
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      createErrorSchema(),
+      "Unauthoried error",
+    ),
   },
 });
 
@@ -239,11 +253,11 @@ export const verifyToken = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(),
-      "Verification successfull"
+      "Verification successfull",
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       createErrorSchema(),
-      "Verifivation failed"
+      "Verifivation failed",
     ),
   },
   security: [
@@ -253,12 +267,11 @@ export const verifyToken = createRoute({
   ],
 });
 
-
 export type RegisterRoute = typeof register;
 export type ResendActivationType = typeof resendActivation;
 export type ActivationType = typeof activation;
-export type LoginType = typeof login
-export type ResetPasswordType = typeof resetPassword
-export type ResetPasswordConfirmType = typeof resetPasswordConfirm
-export type RefreshTokenType = typeof refreshToken
-export type VerifyTokenType = typeof verifyToken
+export type LoginType = typeof login;
+export type ResetPasswordType = typeof resetPassword;
+export type ResetPasswordConfirmType = typeof resetPasswordConfirm;
+export type RefreshTokenType = typeof refreshToken;
+export type VerifyTokenType = typeof verifyToken;

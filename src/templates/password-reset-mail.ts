@@ -1,11 +1,11 @@
 import { html } from "hono/html";
 
-type Props = {
+interface Props {
   name: string;
-  otp: string
-};
+  otp: string;
+}
 
-const PasswordResetEmail = ({ name, otp }: Props) => {
+function PasswordResetEmail({ name, otp }: Props) {
   return html`
     <!doctype html>
     <html lang="en">
@@ -112,6 +112,6 @@ const PasswordResetEmail = ({ name, otp }: Props) => {
       </body>
     </html>
   `;
-};
+}
 
 export default PasswordResetEmail;
