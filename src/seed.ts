@@ -11,7 +11,7 @@ async function seedDatabase() {
     await db.insert(users).values({
       firstName: "Admin",
       lastName: "User",
-      email: "admin.example.com",
+      email: "admin@example.com",
       isActive: true,
       isAdmin: true,
       email_verified: true,
