@@ -10,8 +10,8 @@ export const users = pgTable("users", {
     email: varchar({length: 100}).notNull().unique(),
     isActive: boolean().default(false).notNull(),
     email_verified: boolean().default(false).notNull(),
+    isAdmin: boolean().default(false).notNull(),
     password: text().notNull(),
-
     updatedAt: timestamp().defaultNow().$onUpdate(() => new Date()).notNull(),
     createdAt: timestamp().defaultNow().notNull(),
     deletedAt: timestamp(),
@@ -37,5 +37,8 @@ export const userSelectSchema = createSelectSchema(users).omit({
     password: true
 })
 
-export const userUpdateSchema = userInsertSchema.partial()
+export const userUpdateSchema = userInsertSchema.partial().omit({
+    email: true,
+    password: true
+})
 
