@@ -9,7 +9,7 @@ import { authCheck } from "@/middlewares/auth";
 const tags = ["Users"];
 
 export const me = createRoute({
-  path: "/users/me",
+  path: "/me",
   method: "get",
   tags,
   middleware: [authCheck] as const,

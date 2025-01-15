@@ -7,7 +7,7 @@ const app = createApp();
 const routes = [auth, users];
 configureOpenAPI(app);
 
-routes.forEach((route) => {
-  app.route("/", route);
-});
+app.route("/auth", auth);
+app.route("/users", users);
+
 export default app;

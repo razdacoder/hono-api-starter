@@ -10,7 +10,7 @@ import { authCheck } from "@/middlewares/auth";
 const tags = ["Auth"];
 
 export const register = createRoute({
-  path: "/auth/register",
+  path: "/register",
   tags,
   method: "post",
   request: {
@@ -36,7 +36,7 @@ export const register = createRoute({
 });
 
 export const resendActivation = createRoute({
-  path: "/auth/resend-activation",
+  path: "/resend-activation",
   tags,
   method: "post",
   request: {
@@ -68,7 +68,7 @@ export const resendActivation = createRoute({
 });
 
 export const activation = createRoute({
-  path: "/auth/activation",
+  path: "/activation",
   method: "post",
   tags,
   request: {
@@ -93,7 +93,7 @@ export const activation = createRoute({
 });
 
 export const login = createRoute({
-  path: "/auth/login",
+  path: "/login",
   method: "post",
   tags,
   request: {
@@ -133,7 +133,7 @@ export const login = createRoute({
 
 
 export const resetPassword = createRoute({
-  path: "/auth/reset-password",
+  path: "/reset-password",
   method: "post",
   tags,
   request: {
@@ -160,7 +160,7 @@ export const resetPassword = createRoute({
 });
 
 export const resetPasswordConfirm = createRoute({
-  path: "/auth/reset-password-confirm",
+  path: "/reset-password-confirm",
   method: "post",
   tags,
   request: {
@@ -202,7 +202,7 @@ export const resetPasswordConfirm = createRoute({
 });
 
 export const refreshToken = createRoute({
-  path: "/auth/refresh-token",
+  path: "/refresh-token",
   method: "post",
   tags,
   request: {
@@ -232,7 +232,7 @@ export const refreshToken = createRoute({
 });
 
 export const verifyToken = createRoute({
-  path: "/auth/verify-token",
+  path: "/verify-token",
   method: "get",
   tags,
   middleware: [authCheck] as const,
