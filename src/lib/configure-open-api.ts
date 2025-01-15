@@ -8,7 +8,7 @@ export default function configureOpenAPI(app: AppOpenAPI) {
     type: "http",
     scheme: "bearer",
   });
-  
+
   app.doc("/openapi-doc", {
     openapi: "3.0.0",
     info: {

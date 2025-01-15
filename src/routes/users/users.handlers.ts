@@ -4,8 +4,7 @@ import { JWTPayload } from "@/lib/jwt";
 import { getUserById } from "@/services/users";
 
 export const me: AppRouteHandler<Me> = async (c) => {
-  const payload: JWTPayload = c.get("jwtPayload");
-  const user = await getUserById(payload.sub);
+  const user = c.get("user")
   return c.json({
     success: true,
     message: "User fetched successfully",

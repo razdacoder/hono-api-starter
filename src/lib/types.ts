@@ -6,11 +6,13 @@ import type {
 } from "@hono/zod-openapi";
 import type { PinoLogger } from "hono-pino";
 import type { JwtVariables } from "hono/jwt";
+import { userSelectSchema } from "@/db/schema/users";
 
 export interface AppBindings {
   Variables: {
     logger: PinoLogger;
     jwt: JwtVariables;
+    user: z.infer<typeof userSelectSchema>
   };
 }
 

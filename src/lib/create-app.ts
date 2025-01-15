@@ -3,14 +3,15 @@ import { compress } from "hono/compress";
 import { cors } from "hono/cors";
 import { trimTrailingSlash } from "hono/trailing-slash";
 
-import type { AppBindings } from "@/lib/types.js";
 
-import notFound from "@/middlewares/not-found.js";
-import onError from "@/middlewares/on-error.js";
-import { logger } from "@/middlewares/pino-logger.js";
-import serveEmojiFavicon from "@/middlewares/serve-emoji-favicon.js";
-import { tracing } from "@/middlewares/tracing.js";
-import { createTasker } from "@/tasks/index.js";
+import type { AppBindings } from "@/lib/types";
+
+import notFound from "@/middlewares/not-found";
+import onError from "@/middlewares/on-error";
+import { logger } from "@/middlewares/pino-logger";
+import serveEmojiFavicon from "@/middlewares/serve-emoji-favicon";
+import { tracing } from "@/middlewares/tracing";
+import { createTasker } from "@/tasks";
 
 export function createRouter() {
   return new OpenAPIHono<AppBindings>({ strict: false });

@@ -12,6 +12,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@bull-board/hono": "^6.6.2",
     "@hono/node-server": "^1.13.2",
     "@hono/swagger-ui": "^0.5.0",
     "@hono/zod-openapi": "^0.16.4",

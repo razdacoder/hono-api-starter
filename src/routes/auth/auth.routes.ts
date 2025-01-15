@@ -5,6 +5,7 @@ import { userInsertSchema, userSelectSchema } from "@/db/schema/users.js";
 import jsonContentRequired from "@/utils/jsonContentRequired.js";
 import createErrorSchema from "@/utils/create-error-schema.js";
 import { createSuccessSchema } from "@/utils/create-success-schema";
+import { authCheck } from "@/middlewares/auth";
 
 const tags = ["Auth"];
 
@@ -200,6 +201,58 @@ export const resetPasswordConfirm = createRoute({
   },
 });
 
+export const refreshToken = createRoute({
+  path: "/auth/refresh-token",
+  method: "post",
+  tags,
+  request: {
+    body: jsonContentRequired(
+      z.object({
+        refresh_token: z.string(),
+      }),
+      "Refresh token request body"
+    ),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      createSuccessSchema(
+        z.object({
+          access_token: z.string(),
+        })
+      ),
+      "Refresh token successfull"
+    ),
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      z.object({
+        refresh_token: z.string(),
+      }), "Refresh token validation errors"
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(createErrorSchema(), "Unauthoried error")
+  },
+});
+
+export const verifyToken = createRoute({
+  path: "/auth/verify-token",
+  method: "get",
+  tags,
+  middleware: [authCheck] as const,
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      createSuccessSchema(),
+      "Verification successfull"
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      createErrorSchema(),
+      "Verifivation failed"
+    ),
+  },
+  security: [
+    {
+      Bearer: [],
+    },
+  ],
+});
+
 
 export type RegisterRoute = typeof register;
 export type ResendActivationType = typeof resendActivation;
@@ -207,3 +260,5 @@ export type ActivationType = typeof activation;
 export type LoginType = typeof login
 export type ResetPasswordType = typeof resetPassword
 export type ResetPasswordConfirmType = typeof resetPasswordConfirm
+export type RefreshTokenType = typeof refreshToken
+export type VerifyTokenType = typeof verifyToken
