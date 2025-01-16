@@ -1,11 +1,12 @@
+import { count } from "drizzle-orm";
 import type { AppRouteHandler } from "@/lib/types";
 
-import type { Me, List } from "./users.routes";
+import type { Me, List, GetUser } from "./users.routes";
 import { db } from "@/db";
 import { users } from "@/db/schema/users";
 import { userSelect } from "@/services/users";
 import { paginate } from "@/utils/create-paginated-data";
-import { count, sql } from "drizzle-orm";
+import { getUserById } from "@/services/users";
 
 export const me: AppRouteHandler<Me> = async (c) => {
   const user = c.get("user");
@@ -32,4 +33,13 @@ export const list: AppRouteHandler<List> = async (c) => {
     },
     200
   );
+};
+
+export const getUser: AppRouteHandler<GetUser> = async (c) => {
+  const { id } = c.req.valid("param");
+  const user = await getUserById(id);
+  if (!user) {
+    return c.json({ success: false, message: "User not found" }, 404);
+  }
+  return c.json({ success: true, message: "User retrieve sucessfully" }, 200);
 };

@@ -4,6 +4,7 @@ import { userSelectSchema } from "@/db/schema/users";
 import { authCheck } from "@/middlewares/auth";
 import { isAdminCheck } from "@/middlewares/is-admin";
 import createErrorSchema from "@/utils/create-error-schema";
+import IdUUIDParamsSchema from "@/utils/id-uuid-param";
 import {
   createSuccessSchema,
   createPaginatedSchema,
@@ -63,5 +64,31 @@ export const list = createRoute({
   ],
 });
 
+export const getUser = createRoute({
+  path: "/{id}",
+  method: "get",
+  tags,
+  middleware: [authCheck] as const,
+  request: {
+    params: IdUUIDParamsSchema,
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      createSuccessSchema(userSelectSchema),
+      "Get user successfull"
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      createErrorSchema(),
+      "User not found error"
+    ),
+  },
+  security: [
+    {
+      Bearer: []
+    }
+  ]
+});
+
 export type Me = typeof me;
 export type List = typeof list;
+export type GetUser = typeof getUser
