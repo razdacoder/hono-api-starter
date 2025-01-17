@@ -1,7 +1,14 @@
-import { count } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
+import argon2 from "argon2";
 import type { AppRouteHandler } from "@/lib/types";
 
-import type { Me, List, GetUser } from "./users.routes";
+import type {
+  Me,
+  List,
+  GetUser,
+  UpdateCurrentUser,
+  DeleteCurrentUser,
+} from "./users.routes";
 import { db } from "@/db";
 import { users } from "@/db/schema/users";
 import { userSelect } from "@/services/users";
@@ -42,4 +49,39 @@ export const getUser: AppRouteHandler<GetUser> = async (c) => {
     return c.json({ success: false, message: "User not found" }, 404);
   }
   return c.json({ success: true, message: "User retrieve sucessfully" }, 200);
+};
+
+export const updateCurrentUser: AppRouteHandler<UpdateCurrentUser> = async (c) => {
+  const payload = c.req.valid("json");
+  const user = c.get("user");
+  const updatedUser = await db
+    .update(users)
+    .set(payload)
+    .where(eq(users.id, user.id))
+    .returning(userSelect);
+  return c.json(
+    { success: true, message: "User updated successfull", data: updatedUser },
+    200
+  );
+};
+
+export const deleteCurrentUser: AppRouteHandler<DeleteCurrentUser> = async (c) => {
+  const { current_password } = c.req.valid("json");
+  const user = c.get("user");
+  const [userWithPass] = await db
+    .select({ password: users.password })
+    .from(users)
+    .where(eq(users.id, user.id));
+  const isValidPassword = await argon2.verify(
+    userWithPass.password,
+    current_password
+  );
+  if (!isValidPassword) {
+    return c.json({ success: false, message: "Invalid password" }, 400);
+  }
+  await db.delete(users).where(eq(users.id, user.id));
+  return c.json(
+    { success: true, message: "Account deleted successfully" },
+    200
+  );
 };
