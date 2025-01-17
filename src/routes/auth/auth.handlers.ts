@@ -1,19 +1,19 @@
 import argon2 from "argon2";
 import { eq } from "drizzle-orm";
 
-import type { AppRouteHandler } from "@/lib/types.js";
+import type { AppRouteHandler } from "@/lib/types";
 
-import { db } from "@/db/index.js";
-import { users } from "@/db/schema/users.js";
+import { db } from "@/db/index";
+import { users } from "@/db/schema/users";
 import {
   generateOrReuseOTP,
   invalidateOTP,
   validateOTP,
-} from "@/lib/encryption.js";
-import { encodeJWT, verifyJWT } from "@/lib/jwt.js";
-import { defaultQueue } from "@/lib/queue.js";
-import { getUserByEmail, userSelect } from "@/services/users.js";
-import { TASK } from "@/tasks/index.js";
+} from "@/lib/encryption";
+import { encodeJWT, verifyJWT } from "@/lib/jwt";
+import { defaultQueue } from "@/lib/queue";
+import { getUserByEmail, userSelect } from "@/services/users";
+import { TASK } from "@/tasks";
 
 import type {
   ActivationType,
@@ -24,7 +24,7 @@ import type {
   ResetPasswordConfirmType,
   ResetPasswordType,
   VerifyTokenType,
-} from "./auth.routes.js";
+} from "./auth.routes";
 
 export const register: AppRouteHandler<RegisterRoute> = async (c) => {
   const { firstName, lastName, email, password } = c.req.valid("json");
@@ -258,8 +258,7 @@ export const resetPassword: AppRouteHandler<ResetPasswordType> = async (c) => {
 export const resetPasswordConfirm: AppRouteHandler<
   ResetPasswordConfirmType
 > = async (c) => {
-  const { email, otp, new_password }
-    = c.req.valid("json");
+  const { email, otp, new_password } = c.req.valid("json");
 
   const user = await getUserByEmail(email);
 

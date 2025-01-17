@@ -1,6 +1,6 @@
 import { z } from "@hono/zod-openapi";
 
-import type { ZodSchema } from "@/lib/types.js";
+import type { ZodSchema } from "@/lib/types";
 
 function createErrorSchema(schema?: ZodSchema) {
   if (schema) {

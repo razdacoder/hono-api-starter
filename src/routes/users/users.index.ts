@@ -7,6 +7,6 @@ const router = createRouter()
   .openapi(routes.me, handlers.me)
   .openapi(routes.getUser, handlers.getUser)
   .openapi(routes.updateCurrentUser, handlers.updateCurrentUser)
-  .openapi(routes.deleteCurrentUser, handlers.deleteCurrentUser)
+  .openapi(routes.deleteCurrentUser, handlers.deleteCurrentUser);
 
 export default router;

@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 
-import { connection as redis } from "@/lib/queue.js";
+import { connection as redis } from "@/lib/queue";
 
 function generateOTP(length: number = 6): string {
   return crypto.randomInt(10 ** (length - 1), 10 ** length).toString();

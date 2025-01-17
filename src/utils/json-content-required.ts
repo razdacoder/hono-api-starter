@@ -1,6 +1,6 @@
-import type { ZodSchema } from "@/lib/types.js";
+import type { ZodSchema } from "@/lib/types";
 
-import jsonContent from "./json-content.js";
+import jsonContent from "./json-content";
 
 function jsonContentRequired<T extends ZodSchema>(
   schema: T,

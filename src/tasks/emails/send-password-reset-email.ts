@@ -1,4 +1,4 @@
-import { sendEmail } from "@/lib/email.js";
+import { sendEmail } from "@/lib/email";
 import PasswordResetEmail from "@/templates/password-reset-mail";
 
 interface PasswordResetEmailProps {
@@ -7,7 +7,11 @@ interface PasswordResetEmailProps {
   name: string;
 }
 
-async function sendPasswordResetEmail({ email, otp, name }: PasswordResetEmailProps) {
+async function sendPasswordResetEmail({
+  email,
+  otp,
+  name,
+}: PasswordResetEmailProps) {
   const html = await PasswordResetEmail({ otp, name }).toString();
   await sendEmail({
     from: "noreply@example.com",

@@ -4,12 +4,12 @@ import { userSelectSchema, userUpdateSchema } from "@/db/schema/users";
 import { authCheck } from "@/middlewares/auth";
 import { isAdminCheck } from "@/middlewares/is-admin";
 import createErrorSchema from "@/utils/create-error-schema";
-import IdUUIDParamsSchema from "@/utils/id-uuid-param";
 import {
-  createSuccessSchema,
   createPaginatedSchema,
+  createSuccessSchema,
 } from "@/utils/create-success-schema";
 import * as HttpStatusCodes from "@/utils/http-status-code";
+import IdUUIDParamsSchema from "@/utils/id-uuid-param";
 import jsonContent from "@/utils/json-content";
 import jsonContentRequired from "@/utils/json-content-required";
 
@@ -23,11 +23,11 @@ export const me = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(userSelectSchema),
-      "The current logged in user"
+      "The current logged in user",
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       createErrorSchema(),
-      "Unauthorized user errorrs"
+      "Unauthorized user errorrs",
     ),
   },
   security: [
@@ -51,11 +51,11 @@ export const list = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createPaginatedSchema(userSelectSchema),
-      "List of users"
+      "List of users",
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       createErrorSchema(),
-      "Unauthorized"
+      "Unauthorized",
     ),
   },
   security: [
@@ -76,11 +76,11 @@ export const getUser = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(userSelectSchema),
-      "Get user successfull"
+      "Get user successfull",
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       createErrorSchema(),
-      "User not found error"
+      "User not found error",
     ),
   },
   security: [
@@ -101,15 +101,15 @@ export const updateCurrentUser = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(userSelectSchema),
-      "User update successfull"
+      "User update successfull",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(userUpdateSchema),
-      "User update validation errors"
+      "User update validation errors",
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       createErrorSchema(),
-      "Unauthorized"
+      "Unauthorized",
     ),
   },
   security: [
@@ -129,29 +129,29 @@ export const deleteCurrentUser = createRoute({
       z.object({
         current_password: z.string().min(8),
       }),
-      "Delete user request body"
+      "Delete user request body",
     ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(),
-      "User deletion sucessfull"
+      "User deletion sucessfull",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(
         z.object({
           current_password: z.string().min(8),
-        })
+        }),
       ),
-      "Validation errors"
+      "Validation errors",
     ),
     [HttpStatusCodes.BAD_REQUEST]: jsonContent(
       createErrorSchema(),
-      "Invalid password"
+      "Invalid password",
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       createErrorSchema(),
-      "Unauthorized"
+      "Unauthorized",
     ),
   },
   security: [{ Bearer: [] }],
@@ -170,16 +170,16 @@ export const changeUserPassword = createRoute({
           new_password: z.string().min(8),
           confirm_new_password: z.string().min(8),
         })
-        .refine((data) => data.new_password === data.confirm_new_password, {
+        .refine(data => data.new_password === data.confirm_new_password, {
           path: ["confirm_new_password"],
         }),
-      "Change password request body"
+      "Change password request body",
     ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(),
-      "Password changed sucessfully"
+      "Password changed sucessfully",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       z
@@ -188,10 +188,10 @@ export const changeUserPassword = createRoute({
           new_password: z.string().min(8),
           confirm_new_password: z.string().min(8),
         })
-        .refine((data) => data.new_password === data.confirm_new_password, {
+        .refine(data => data.new_password === data.confirm_new_password, {
           path: ["confirm_new_password"],
         }),
-        "Validation errors"
+      "Validation errors",
     ),
   },
   security: [{ Bearer: [] }],
