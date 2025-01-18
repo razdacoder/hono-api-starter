@@ -1,20 +1,20 @@
 import argon2 from "argon2";
-import { count, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 import type { AppRouteHandler } from "@/lib/types";
 
-import type {
-  Me,
-  List,
-  GetUser,
-  UpdateCurrentUser,
-  DeleteCurrentUser,
-  ChangeUserPassword,
-} from "./users.routes";
 import { db } from "@/db";
 import { users } from "@/db/schema/users";
 import { getUserById, userSelect } from "@/services/users/users.services";
 import { paginate } from "@/utils/create-paginated-data";
+import type {
+  ChangeUserPassword,
+  DeleteCurrentUser,
+  GetUser,
+  List,
+  Me,
+  UpdateCurrentUser,
+} from "./users.routes";
 
 
 export const me: AppRouteHandler<Me> = async (c) => {
@@ -31,7 +31,6 @@ export const list: AppRouteHandler<List> = async (c) => {
 
   const result = await paginate(
     () => db.select(userSelect).from(users),
-    () => db.select({ count: count() }).from(users),
     { page, limit },
   );
   return c.json(
