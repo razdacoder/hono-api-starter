@@ -3,7 +3,6 @@ import { count, eq } from "drizzle-orm";
 
 import type { AppRouteHandler } from "@/lib/types";
 
-<<<<<<< HEAD
 import type {
   Me,
   List,
@@ -12,20 +11,11 @@ import type {
   DeleteCurrentUser,
   ChangeUserPassword,
 } from "./users.routes";
-=======
->>>>>>> b738aeb03fe51035853332fa4db8cb4c8328bb04
 import { db } from "@/db";
 import { users } from "@/db/schema/users";
 import { getUserById, userSelect } from "@/services/users";
 import { paginate } from "@/utils/create-paginated-data";
 
-import type {
-  DeleteCurrentUser,
-  GetUser,
-  List,
-  Me,
-  UpdateCurrentUser,
-} from "./users.routes";
 
 export const me: AppRouteHandler<Me> = async (c) => {
   const user = c.get("user");
