@@ -8,5 +8,6 @@ const router = createRouter()
   .openapi(routes.getUser, handlers.getUser)
   .openapi(routes.updateCurrentUser, handlers.updateCurrentUser)
   .openapi(routes.deleteCurrentUser, handlers.deleteCurrentUser)
+  .openapi(routes.changeUserPassword, handlers.changeUserPassword)
 
 export default router;

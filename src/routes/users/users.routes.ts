@@ -193,6 +193,8 @@ export const changeUserPassword = createRoute({
         }),
         "Validation errors"
     ),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(createErrorSchema(), "Invalid Password Error"),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(createErrorSchema(), "Unauthorized")
   },
   security: [{ Bearer: [] }],
 });
@@ -201,3 +203,4 @@ export type List = typeof list;
 export type GetUser = typeof getUser;
 export type UpdateCurrentUser = typeof updateCurrentUser;
 export type DeleteCurrentUser = typeof deleteCurrentUser;
+export type ChangeUserPassword = typeof changeUserPassword

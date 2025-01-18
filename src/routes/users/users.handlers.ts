@@ -8,6 +8,7 @@ import type {
   GetUser,
   UpdateCurrentUser,
   DeleteCurrentUser,
+  ChangeUserPassword,
 } from "./users.routes";
 import { db } from "@/db";
 import { users } from "@/db/schema/users";
@@ -51,7 +52,9 @@ export const getUser: AppRouteHandler<GetUser> = async (c) => {
   return c.json({ success: true, message: "User retrieve sucessfully" }, 200);
 };
 
-export const updateCurrentUser: AppRouteHandler<UpdateCurrentUser> = async (c) => {
+export const updateCurrentUser: AppRouteHandler<UpdateCurrentUser> = async (
+  c
+) => {
   const payload = c.req.valid("json");
   const user = c.get("user");
   const updatedUser = await db
@@ -65,7 +68,9 @@ export const updateCurrentUser: AppRouteHandler<UpdateCurrentUser> = async (c) =
   );
 };
 
-export const deleteCurrentUser: AppRouteHandler<DeleteCurrentUser> = async (c) => {
+export const deleteCurrentUser: AppRouteHandler<DeleteCurrentUser> = async (
+  c
+) => {
   const { current_password } = c.req.valid("json");
   const user = c.get("user");
   const [userWithPass] = await db
@@ -82,6 +87,36 @@ export const deleteCurrentUser: AppRouteHandler<DeleteCurrentUser> = async (c) =
   await db.delete(users).where(eq(users.id, user.id));
   return c.json(
     { success: true, message: "Account deleted successfully" },
+    200
+  );
+};
+
+export const changeUserPassword: AppRouteHandler<ChangeUserPassword> = async (
+  c
+) => {
+  const { current_password, new_password } = c.req.valid("json");
+  const user = c.get("user");
+  const [userPassword] = await db
+    .select({ password: users.password })
+    .from(users)
+    .where(eq(users.id, user.id));
+
+  const isValidPassword = await argon2.verify(
+    userPassword.password,
+    current_password
+  );
+  if (!isValidPassword) {
+    return c.json({ success: false, message: "Invalid Password" }, 400);
+  }
+
+  const hashedPassword = await argon2.hash(new_password);
+  await db
+    .update(users)
+    .set({ password: hashedPassword })
+    .where(eq(users.id, user.id));
+
+  return c.json(
+    { success: true, message: "Password updated sucessfully" },
     200
   );
 };
