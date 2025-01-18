@@ -12,7 +12,7 @@ import {
 } from "@/lib/encryption";
 import { encodeJWT, verifyJWT } from "@/lib/jwt";
 import { defaultQueue } from "@/lib/queue";
-import { getUserByEmail, userSelect } from "@/services/users/users.services";
+import { getUserByEmail, userSelect } from "@/modules/users/users.services";
 import { TASK } from "@/tasks";
 
 import type {

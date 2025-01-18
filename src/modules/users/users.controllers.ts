@@ -5,7 +5,7 @@ import type { AppRouteHandler } from "@/lib/types";
 
 import { db } from "@/db";
 import { users } from "@/db/schema/users";
-import { getUserById, userSelect } from "@/services/users/users.services";
+import { getUserById, userSelect } from "@/modules/users/users.services";
 import { paginate } from "@/utils/create-paginated-data";
 import type {
   ChangeUserPassword,
