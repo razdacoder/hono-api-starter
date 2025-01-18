@@ -1,7 +1,9 @@
-import { count, eq } from "drizzle-orm";
 import argon2 from "argon2";
+import { count, eq } from "drizzle-orm";
+
 import type { AppRouteHandler } from "@/lib/types";
 
+<<<<<<< HEAD
 import type {
   Me,
   List,
@@ -10,11 +12,20 @@ import type {
   DeleteCurrentUser,
   ChangeUserPassword,
 } from "./users.routes";
+=======
+>>>>>>> b738aeb03fe51035853332fa4db8cb4c8328bb04
 import { db } from "@/db";
 import { users } from "@/db/schema/users";
-import { userSelect } from "@/services/users";
+import { getUserById, userSelect } from "@/services/users";
 import { paginate } from "@/utils/create-paginated-data";
-import { getUserById } from "@/services/users";
+
+import type {
+  DeleteCurrentUser,
+  GetUser,
+  List,
+  Me,
+  UpdateCurrentUser,
+} from "./users.routes";
 
 export const me: AppRouteHandler<Me> = async (c) => {
   const user = c.get("user");
@@ -31,7 +42,7 @@ export const list: AppRouteHandler<List> = async (c) => {
   const result = await paginate(
     () => db.select(userSelect).from(users),
     () => db.select({ count: count() }).from(users),
-    { page, limit }
+    { page, limit },
   );
   return c.json(
     {
@@ -39,7 +50,7 @@ export const list: AppRouteHandler<List> = async (c) => {
       message: "User list featched successfull",
       data: result,
     },
-    200
+    200,
   );
 };
 
@@ -64,7 +75,7 @@ export const updateCurrentUser: AppRouteHandler<UpdateCurrentUser> = async (
     .returning(userSelect);
   return c.json(
     { success: true, message: "User updated successfull", data: updatedUser },
-    200
+    200,
   );
 };
 
@@ -79,7 +90,7 @@ export const deleteCurrentUser: AppRouteHandler<DeleteCurrentUser> = async (
     .where(eq(users.id, user.id));
   const isValidPassword = await argon2.verify(
     userWithPass.password,
-    current_password
+    current_password,
   );
   if (!isValidPassword) {
     return c.json({ success: false, message: "Invalid password" }, 400);
@@ -87,7 +98,7 @@ export const deleteCurrentUser: AppRouteHandler<DeleteCurrentUser> = async (
   await db.delete(users).where(eq(users.id, user.id));
   return c.json(
     { success: true, message: "Account deleted successfully" },
-    200
+    200,
   );
 };
 

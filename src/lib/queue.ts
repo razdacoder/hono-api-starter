@@ -1,7 +1,7 @@
 import { Queue } from "bullmq";
 import IORedis from "ioredis";
 
-import env from "@/env.js";
+import env from "@/env";
 
 const QUEUE = {
   default: "default",

@@ -1,12 +1,12 @@
 import { createRoute, z } from "@hono/zod-openapi";
 
-import { userInsertSchema, userSelectSchema } from "@/db/schema/users.js";
+import { userInsertSchema, userSelectSchema } from "@/db/schema/users";
 import { authCheck } from "@/middlewares/auth";
-import createErrorSchema from "@/utils/create-error-schema.js";
+import createErrorSchema from "@/utils/create-error-schema";
 import { createSuccessSchema } from "@/utils/create-success-schema";
-import * as HttpStatusCodes from "@/utils/http-status-code.js";
-import jsonContentRequired from "@/utils/json-content-required.js";
-import jsonContent from "@/utils/json-content.js";
+import * as HttpStatusCodes from "@/utils/http-status-code";
+import jsonContent from "@/utils/json-content";
+import jsonContentRequired from "@/utils/json-content-required";
 
 const tags = ["Auth"];
 

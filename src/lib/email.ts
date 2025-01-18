@@ -1,8 +1,8 @@
 import nodemailer from "nodemailer";
 
-import env from "@/env.js";
+import env from "@/env";
 
-import { logger } from "./logger.js";
+import { logger } from "./logger";
 
 interface EmailOptions {
   to: string; // Recipient email address
@@ -22,7 +22,13 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export async function sendEmail({ from, to, subject, html, text }: EmailOptions): Promise<void> {
+export async function sendEmail({
+  from,
+  to,
+  subject,
+  html,
+  text,
+}: EmailOptions): Promise<void> {
   try {
     const info = await transporter.sendMail({
       from,

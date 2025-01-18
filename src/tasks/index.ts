@@ -1,11 +1,11 @@
 import { type Job, Worker } from "bullmq";
 
-import { logger } from "@/lib/logger.js";
-import { connection, QUEUE } from "@/lib/queue.js";
+import { logger } from "@/lib/logger";
+import { connection, QUEUE } from "@/lib/queue";
 
-import sendActivationEmail from "./emails/send-activation-email.js";
-import sendPasswordResetEmail from "./emails/send-password-reset-email.js";
-import sendWelcomeEmail from "./emails/send-welcome-email.js";
+import sendActivationEmail from "./emails/send-activation-email";
+import sendPasswordResetEmail from "./emails/send-password-reset-email";
+import sendWelcomeEmail from "./emails/send-welcome-email";
 
 const TASK = {
   SendWelcomeEmail: "SendWelcomeEmail",

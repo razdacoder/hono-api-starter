@@ -1,5 +1,5 @@
-import { sendEmail } from "@/lib/email.js";
-import ActivationEmail from "@/templates/activation-email.js";
+import { sendEmail } from "@/lib/email";
+import ActivationEmail from "@/templates/activation-email";
 
 interface ActivationEmailProps {
   email: string;

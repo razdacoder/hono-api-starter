@@ -20,7 +20,7 @@ interface PaginatedResult<T> {
 export async function paginate<T>(
   dbQuery: () => Promise<T[]>,
   countQuery: () => Promise<{ count: number }[]>,
-  params: PaginationParams
+  params: PaginationParams,
 ): Promise<PaginatedResult<T>> {
   const { page, limit } = params;
 
@@ -33,7 +33,7 @@ export async function paginate<T>(
   const totalPages = Math.ceil(totalItems.count / size);
 
   // Get paginated items
-  const offset = (currentPage - 1) * size;
+  // const offset = (currentPage - 1) * size;
   const items = await dbQuery();
   const hasPrevPage = currentPage > 1;
   const hasNextPage = currentPage < totalPages;

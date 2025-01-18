@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 
 import { db } from "@/db";
-import { users } from "@/db/schema/users.js";
+import { users } from "@/db/schema/users";
 
 export const userSelect = {
   id: users.id,
