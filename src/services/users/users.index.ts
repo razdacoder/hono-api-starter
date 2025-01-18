@@ -1,6 +1,6 @@
 import { createRouter } from "@/lib/create-app";
-import * as handlers from "@/routes/users/users.handlers";
-import * as routes from "@/routes/users/users.routes";
+import * as handlers from "@/services/users/users.controllers";
+import * as routes from "@/services/users/users.routes";
 
 const router = createRouter()
   .openapi(routes.list, handlers.list)

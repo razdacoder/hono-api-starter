@@ -13,7 +13,7 @@ import type {
 } from "./users.routes";
 import { db } from "@/db";
 import { users } from "@/db/schema/users";
-import { getUserById, userSelect } from "@/services/users";
+import { getUserById, userSelect } from "@/services/users/users.services";
 import { paginate } from "@/utils/create-paginated-data";
 
 
