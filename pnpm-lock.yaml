@@ -14,15 +14,9 @@ importers:
       '@hono/node-server':
         specifier: ^1.13.2
         version: 1.13.2(hono@4.6.5)
-      '@hono/swagger-ui':
-        specifier: ^0.5.0
-        version: 0.5.0(hono@4.6.5)
       '@hono/zod-openapi':
         specifier: ^0.16.4
         version: 0.16.4(hono@4.6.5)(zod@3.23.8)
-      '@hono/zod-validator':
-        specifier: ^0.4.2
-        version: 0.4.2(hono@4.6.5)(zod@3.23.8)
       '@scalar/hono-api-reference':
         specifier: ^0.5.156
         version: 0.5.165(hono@4.6.5)
@@ -71,9 +65,6 @@ importers:
       zod:
         specifier: ^3.23.8
         version: 3.23.8
-      zod-openapi:
-        specifier: ^4.2.2
-        version: 4.2.2(zod@3.23.8)
     devDependencies:
       '@antfu/eslint-config':
         specifier: ^3.8.0
@@ -722,11 +713,6 @@ packages:
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4
-
-  '@hono/swagger-ui@0.5.0':
-    resolution: {integrity: sha512-MWYYSv9kC8IwFBLZdwgZZMT9zUq2C/4/ekuyEYOkHEgUMqu+FG3eebtBZ4ofMh60xYRxRR2BgQGoNIILys/PFg==}
-    peerDependencies:
-      hono: '*'
 
   '@hono/typebox-validator@0.2.6':
     resolution: {integrity: sha512-x+Q7RWiw6rJmJs7MDgtvRbS7ViXXEzqimC0duY4or7y1f89f5Z3KCQSdUSVka+Uv0HZ/O0ZNt+ixNDxfJLi4hA==}
@@ -3004,10 +2990,6 @@ snapshots:
     dependencies:
       hono: 4.6.5
 
-  '@hono/swagger-ui@0.5.0(hono@4.6.5)':
-    dependencies:
-      hono: 4.6.5
-
   '@hono/typebox-validator@0.2.6(@sinclair/typebox@0.34.13)(hono@4.6.16)':
     dependencies:
       '@sinclair/typebox': 0.34.13
@@ -3037,11 +3019,6 @@ snapshots:
       hono: 4.6.16
       zod: 3.23.8
     optional: true
-
-  '@hono/zod-validator@0.4.2(hono@4.6.5)(zod@3.23.8)':
-    dependencies:
-      hono: 4.6.5
-      zod: 3.23.8
 
   '@humanfs/core@0.19.0': {}
 
@@ -5036,6 +5013,7 @@ snapshots:
   zod-openapi@4.2.2(zod@3.23.8):
     dependencies:
       zod: 3.23.8
+    optional: true
 
   zod@3.23.8: {}
 
