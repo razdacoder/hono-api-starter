@@ -10,7 +10,7 @@ export function createSuccessSchema(schema?: ZodSchema) {
         .openapi({
           example: true,
         })
-        .default(true),
+        .default(true).optional(),
       message: z.string(),
       data: schema,
     });
@@ -21,7 +21,7 @@ export function createSuccessSchema(schema?: ZodSchema) {
       .openapi({
         example: true,
       })
-      .default(true),
+      .default(true).optional(),
     message: z.string(),
   });
 }
@@ -58,7 +58,7 @@ export function createPaginatedSchema(dataSchema: ZodSchema) {
       .openapi({
         example: true,
       })
-      .default(true),
+      .default(true).optional(),
     message: z.string(),
     data: z.object({
       items: z.array(dataSchema), // Array of items of the given schema
@@ -75,7 +75,7 @@ export function createErrorSchema(schema?: ZodSchema) {
     return z.object({
       success: z.boolean().openapi({
         example: false,
-      }),
+      }).default(false).optional(),
       message: z.string(),
       error: z
         .object({
@@ -96,7 +96,7 @@ export function createErrorSchema(schema?: ZodSchema) {
   return z.object({
     success: z.boolean().openapi({
       example: false,
-    }),
+    }).default(false).optional(),
     message: z.string(),
   });
 }

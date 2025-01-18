@@ -1,10 +1,11 @@
-import { createRoute, z } from "@hono/zod-openapi";
+import { createRoute } from "@hono/zod-openapi";
 
 import { userInsertSchema, userSelectSchema } from "@/db/schema/users";
 import { authCheck } from "@/middlewares/auth";
 import { createErrorSchema, createSuccessSchema } from "@/utils/create-response-schema";
 import * as HttpStatusCodes from "@/utils/http-status-code";
 import { jsonContent, jsonContentRequired } from "@/utils/json-content";
+import { accessTokenSchema, emailOtpSchema, emailSchema, loginRequestSchema, loginResponseSchema, refreshTokenSchema, resetPasswordConfirmSchema, verifyEmailSchema } from "@/utils/schema";
 
 
 const tags = ["Auth"];
@@ -25,11 +26,7 @@ export const register = createRoute({
       createErrorSchema(userInsertSchema),
       "User creation validation errors",
     ),
-    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
-      z.object({
-        success: z.boolean().default(false),
-        message: z.string(),
-      }),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(createErrorSchema(),
       "User already exists error",
     ),
   },
@@ -41,9 +38,7 @@ export const resendActivation = createRoute({
   method: "post",
   request: {
     body: jsonContentRequired(
-      z.object({
-        email: z.string().email(),
-      }),
+     emailSchema,
       "Resend activation request body",
     ),
   },
@@ -54,9 +49,7 @@ export const resendActivation = createRoute({
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(
-        z.object({
-          email: z.string().email({ message: "Invalid email address" }),
-        }),
+        emailSchema,
       ),
       "Validation Errors",
     ),
@@ -73,10 +66,7 @@ export const activation = createRoute({
   tags,
   request: {
     body: jsonContentRequired(
-      z.object({
-        email: z.string().email({ message: "Invalid email address" }),
-        otp: z.string().min(6).max(6),
-      }),
+     emailOtpSchema,
       "Activation request body",
     ),
   },
@@ -85,6 +75,7 @@ export const activation = createRoute({
       createSuccessSchema(),
       "Account activation sucessfull",
     ),
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(createErrorSchema(emailOtpSchema), "Validation errors"),
     [HttpStatusCodes.BAD_REQUEST]: jsonContent(
       createErrorSchema(),
       "Activation Invalid OTP",
@@ -98,38 +89,26 @@ export const login = createRoute({
   tags,
   request: {
     body: jsonContentRequired(
-      z.object({
-        email: z.string().email(),
-        password: z.string().min(8),
-      }),
+      loginRequestSchema,
       "Request body for login",
     ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(
-        z.object({
-          access_token: z.string(),
-          refresh_token: z.string(),
-          user: userSelectSchema,
-        }),
+       loginResponseSchema,
       ),
       "Login sucessfull response",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(
-        z.object({
-          email: z.string().email(),
-          password: z.string().min(8),
-        }),
+        loginRequestSchema,
       ),
       "Validation errors for login",
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       createErrorSchema(
-        z.object({
-          verify_email: z.boolean().optional(),
-        }),
+       verifyEmailSchema,
       ),
       "Invalid Credentials Error",
     ),
@@ -142,9 +121,7 @@ export const resetPassword = createRoute({
   tags,
   request: {
     body: jsonContentRequired(
-      z.object({
-        email: z.string().email(),
-      }),
+      emailSchema,
       "Password reset request body",
     ),
   },
@@ -155,9 +132,7 @@ export const resetPassword = createRoute({
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(
-        z.object({
-          email: z.string().email(),
-        }),
+        emailSchema,
       ),
       "Password reset validation errors",
     ),
@@ -170,16 +145,7 @@ export const resetPasswordConfirm = createRoute({
   tags,
   request: {
     body: jsonContentRequired(
-      z
-        .object({
-          email: z.string().email(),
-          otp: z.string().min(6).max(6),
-          new_password: z.string().min(8),
-          confirm_new_password: z.string().min(8),
-        })
-        .refine(data => data.new_password === data.confirm_new_password, {
-          path: ["confirm_new_password"],
-        }),
+     resetPasswordConfirmSchema,
       "Reset Password Confirm Request Body",
     ),
   },
@@ -190,16 +156,7 @@ export const resetPasswordConfirm = createRoute({
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(
-        z
-          .object({
-            email: z.string().email(),
-            otp: z.string().min(6).max(6),
-            new_password: z.string().min(8),
-            confirm_new_password: z.string().min(8),
-          })
-          .refine(data => data.new_password === data.confirm_new_password, {
-            path: ["confirm_new_password"],
-          }),
+        resetPasswordConfirmSchema,
       ),
       "Password reset validation errors",
     ),
@@ -216,25 +173,19 @@ export const refreshToken = createRoute({
   tags,
   request: {
     body: jsonContentRequired(
-      z.object({
-        refresh_token: z.string(),
-      }),
+      refreshTokenSchema,
       "Refresh token request body",
     ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(
-        z.object({
-          access_token: z.string(),
-        }),
+        accessTokenSchema,
       ),
       "Refresh token successfull",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      z.object({
-        refresh_token: z.string(),
-      }),
+     refreshTokenSchema,
       "Refresh token validation errors",
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(

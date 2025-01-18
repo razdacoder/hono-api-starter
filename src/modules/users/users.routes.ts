@@ -7,12 +7,12 @@ import { isAdminCheck } from "@/middlewares/is-admin";
 import {
   createPaginatedSchema,
   createSuccessSchema,
-  createErrorSchema
+  createErrorSchema,
 } from "@/utils/create-response-schema";
 import * as HttpStatusCodes from "@/utils/http-status-code";
 import IdUUIDParamsSchema from "@/utils/id-uuid-param";
 import { jsonContent, jsonContentRequired } from "@/utils/json-content";
-
+import { currentPasswordSchema, changePasswordSchema } from "@/utils/schema";
 
 const tags = ["Users"];
 
@@ -127,9 +127,7 @@ export const deleteCurrentUser = createRoute({
   middleware: [authCheck] as const,
   request: {
     body: jsonContentRequired(
-      z.object({
-        current_password: z.string().min(8),
-      }),
+      currentPasswordSchema,
       "Delete user request body"
     ),
   },
@@ -139,11 +137,7 @@ export const deleteCurrentUser = createRoute({
       "User deletion sucessfull"
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createErrorSchema(
-        z.object({
-          current_password: z.string().min(8),
-        })
-      ),
+      createErrorSchema(currentPasswordSchema),
       "Validation errors"
     ),
     [HttpStatusCodes.BAD_REQUEST]: jsonContent(
@@ -165,15 +159,7 @@ export const changeUserPassword = createRoute({
   middleware: [authCheck] as const,
   request: {
     body: jsonContentRequired(
-      z
-        .object({
-          current_password: z.string().min(8),
-          new_password: z.string().min(8),
-          confirm_new_password: z.string().min(8),
-        })
-        .refine((data) => data.new_password === data.confirm_new_password, {
-          path: ["confirm_new_password"],
-        }),
+      changePasswordSchema,
       "Change password request body"
     ),
   },
@@ -183,15 +169,7 @@ export const changeUserPassword = createRoute({
       "Password changed sucessfully"
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      z
-        .object({
-          current_password: z.string().min(8),
-          new_password: z.string().min(8),
-          confirm_new_password: z.string().min(8),
-        })
-        .refine((data) => data.new_password === data.confirm_new_password, {
-          path: ["confirm_new_password"],
-        }),
+      changePasswordSchema,
       "Validation errors"
     ),
     [HttpStatusCodes.BAD_REQUEST]: jsonContent(
