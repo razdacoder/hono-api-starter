@@ -26,6 +26,7 @@ export const userInsertSchema = createInsertSchema(users).required({
   updatedAt: true,
   deletedAt: true,
   isActive: true,
+  isAdmin: true,
   email_verified: true,
 });
 

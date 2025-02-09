@@ -2,7 +2,7 @@ import { createMiddleware } from "hono/factory";
 
 import { verifyJWT } from "@/lib/jwt";
 import { logger } from "@/lib/logger";
-import { getUserById } from "@/services/users";
+import { getUserById } from "@/modules/users/users.services";
 
 export const authCheck = createMiddleware(async (c, next) => {
   try {

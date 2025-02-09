@@ -3,15 +3,16 @@ import { createRoute, z } from "@hono/zod-openapi";
 import { userSelectSchema, userUpdateSchema } from "@/db/schema/users";
 import { authCheck } from "@/middlewares/auth";
 import { isAdminCheck } from "@/middlewares/is-admin";
-import createErrorSchema from "@/utils/create-error-schema";
+
 import {
   createPaginatedSchema,
   createSuccessSchema,
-} from "@/utils/create-success-schema";
+  createErrorSchema,
+} from "@/utils/create-response-schema";
 import * as HttpStatusCodes from "@/utils/http-status-code";
 import IdUUIDParamsSchema from "@/utils/id-uuid-param";
-import jsonContent from "@/utils/json-content";
-import jsonContentRequired from "@/utils/json-content-required";
+import { jsonContent, jsonContentRequired } from "@/utils/json-content";
+import { currentPasswordSchema, changePasswordSchema } from "@/utils/schema";
 
 const tags = ["Users"];
 
@@ -23,11 +24,11 @@ export const me = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(userSelectSchema),
-      "The current logged in user",
+      "The current logged in user"
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       createErrorSchema(),
-      "Unauthorized user errorrs",
+      "Unauthorized user errorrs"
     ),
   },
   security: [
@@ -51,11 +52,11 @@ export const list = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createPaginatedSchema(userSelectSchema),
-      "List of users",
+      "List of users"
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       createErrorSchema(),
-      "Unauthorized",
+      "Unauthorized"
     ),
   },
   security: [
@@ -76,11 +77,11 @@ export const getUser = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(userSelectSchema),
-      "Get user successfull",
+      "Get user successfull"
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       createErrorSchema(),
-      "User not found error",
+      "User not found error"
     ),
   },
   security: [
@@ -101,15 +102,15 @@ export const updateCurrentUser = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(userSelectSchema),
-      "User update successfull",
+      "User update successfull"
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(userUpdateSchema),
-      "User update validation errors",
+      "User update validation errors"
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       createErrorSchema(),
-      "Unauthorized",
+      "Unauthorized"
     ),
   },
   security: [
@@ -126,32 +127,26 @@ export const deleteCurrentUser = createRoute({
   middleware: [authCheck] as const,
   request: {
     body: jsonContentRequired(
-      z.object({
-        current_password: z.string().min(8),
-      }),
-      "Delete user request body",
+      currentPasswordSchema,
+      "Delete user request body"
     ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(),
-      "User deletion sucessfull",
+      "User deletion sucessfull"
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createErrorSchema(
-        z.object({
-          current_password: z.string().min(8),
-        }),
-      ),
-      "Validation errors",
+      createErrorSchema(currentPasswordSchema),
+      "Validation errors"
     ),
     [HttpStatusCodes.BAD_REQUEST]: jsonContent(
       createErrorSchema(),
-      "Invalid password",
+      "Invalid password"
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       createErrorSchema(),
-      "Unauthorized",
+      "Unauthorized"
     ),
   },
   security: [{ Bearer: [] }],
@@ -164,34 +159,26 @@ export const changeUserPassword = createRoute({
   middleware: [authCheck] as const,
   request: {
     body: jsonContentRequired(
-      z
-        .object({
-          current_password: z.string().min(8),
-          new_password: z.string().min(8),
-          confirm_new_password: z.string().min(8),
-        })
-        .refine(data => data.new_password === data.confirm_new_password, {
-          path: ["confirm_new_password"],
-        }),
-      "Change password request body",
+      changePasswordSchema,
+      "Change password request body"
     ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(),
-      "Password changed sucessfully",
+      "Password changed sucessfully"
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      z
-        .object({
-          current_password: z.string().min(8),
-          new_password: z.string().min(8),
-          confirm_new_password: z.string().min(8),
-        })
-        .refine(data => data.new_password === data.confirm_new_password, {
-          path: ["confirm_new_password"],
-        }),
-      "Validation errors",
+      changePasswordSchema,
+      "Validation errors"
+    ),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      createErrorSchema(),
+      "Invalid Password Error"
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      createErrorSchema(),
+      "Unauthorized"
     ),
   },
   security: [{ Bearer: [] }],
@@ -201,3 +188,4 @@ export type List = typeof list;
 export type GetUser = typeof getUser;
 export type UpdateCurrentUser = typeof updateCurrentUser;
 export type DeleteCurrentUser = typeof deleteCurrentUser;
+export type ChangeUserPassword = typeof changeUserPassword;

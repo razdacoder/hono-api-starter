@@ -10,7 +10,7 @@ export function createSuccessSchema(schema?: ZodSchema) {
         .openapi({
           example: true,
         })
-        .default(true),
+        .default(true).optional(),
       message: z.string(),
       data: schema,
     });
@@ -21,7 +21,7 @@ export function createSuccessSchema(schema?: ZodSchema) {
       .openapi({
         example: true,
       })
-      .default(true),
+      .default(true).optional(),
     message: z.string(),
   });
 }
@@ -58,11 +58,45 @@ export function createPaginatedSchema(dataSchema: ZodSchema) {
       .openapi({
         example: true,
       })
-      .default(true),
+      .default(true).optional(),
     message: z.string(),
     data: z.object({
       items: z.array(dataSchema), // Array of items of the given schema
       pagination: paginationSchema,
     }),
+  });
+}
+
+export function createErrorSchema(schema?: ZodSchema) {
+  if (schema) {
+    const { error } = schema.safeParse(
+      schema._def.typeName === z.ZodFirstPartyTypeKind.ZodArray ? [] : {},
+    );
+    return z.object({
+      success: z.boolean().openapi({
+        example: false,
+      }).default(false).optional(),
+      message: z.string(),
+      error: z
+        .object({
+          issues: z.array(
+            z.object({
+              code: z.string(),
+              path: z.array(z.union([z.string(), z.number()])),
+              message: z.string().optional(),
+            }),
+          ),
+          name: z.string(),
+        })
+        .openapi({
+          example: error,
+        }),
+    });
+  }
+  return z.object({
+    success: z.boolean().openapi({
+      example: false,
+    }).default(false).optional(),
+    message: z.string(),
   });
 }
