@@ -10,7 +10,7 @@ import onError from "@/middlewares/on-error";
 import { logger } from "@/middlewares/pino-logger";
 import serveEmojiFavicon from "@/middlewares/serve-emoji-favicon";
 import { tracing } from "@/middlewares/tracing";
-import { createTasker } from "@/tasks";
+import { createEmailTasker } from "@/tasks/emails";
 
 export function createRouter() {
   return new OpenAPIHono<AppBindings>({ strict: false });
@@ -29,10 +29,10 @@ export default function createApp() {
   app.notFound(notFound);
   app.onError(onError);
 
-  const tasker = createTasker();
-  const worker = tasker.setup();
+  const emailtasker = createEmailTasker();
+  const emailWorker = emailtasker.setup();
 
-  worker.on("ready", () => {
+  emailWorker.on("ready", () => {
     // eslint-disable-next-line no-console
     console.log("Worker is ready and listening for jobs!");
   });

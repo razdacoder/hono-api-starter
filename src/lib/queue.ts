@@ -3,9 +3,7 @@ import IORedis from "ioredis";
 
 import env from "@/env";
 
-const QUEUE = {
-  default: "default",
-};
+import { QUEUE } from "./constants";
 
 const connection = new IORedis({
   port: env.REDIS_PORT,
@@ -14,7 +12,7 @@ const connection = new IORedis({
 });
 
 // Reuse the ioredis instance
-const defaultQueue = new Queue(QUEUE.default, {
+const mailQueue = new Queue(QUEUE.email, {
   connection,
   defaultJobOptions: {
     removeOnComplete: {
@@ -27,4 +25,4 @@ const defaultQueue = new Queue(QUEUE.default, {
   },
 });
 
-export { connection, defaultQueue, QUEUE };
+export { connection, mailQueue };

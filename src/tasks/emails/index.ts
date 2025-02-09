@@ -1,32 +1,33 @@
 import { type Job, Worker } from "bullmq";
 
+import { QUEUE } from "@/lib/constants";
 import { logger } from "@/lib/logger";
-import { connection, QUEUE } from "@/lib/queue";
+import { connection } from "@/lib/queue";
 
-import sendActivationEmail from "./emails/send-activation-email";
-import sendPasswordResetEmail from "./emails/send-password-reset-email";
-import sendWelcomeEmail from "./emails/send-welcome-email";
+import sendActivationEmail from "./send-activation-email";
+import sendPasswordResetEmail from "./send-password-reset-email";
+import sendWelcomeEmail from "./send-welcome-email";
 
-const TASK = {
+const EMAILTASKS = {
   SendWelcomeEmail: "SendWelcomeEmail",
   SendActivationEmail: "SendActivationEmail",
   SendPasswordResetEmail: "SendPasswordResetEmail",
 };
 
-function createTasker() {
+function createEmailTasker() {
   const processor = async (job: Job) => {
     switch (job.name) {
-      case TASK.SendWelcomeEmail: {
+      case EMAILTASKS.SendWelcomeEmail: {
         const { email, name } = job.data;
         await sendWelcomeEmail({ name, email });
         break;
       }
-      case TASK.SendActivationEmail: {
+      case EMAILTASKS.SendActivationEmail: {
         const { email, otp } = job.data;
         await sendActivationEmail({ email, otp });
         break;
       }
-      case TASK.SendPasswordResetEmail: {
+      case EMAILTASKS.SendPasswordResetEmail: {
         const { email, otp, name } = job.data;
         await sendPasswordResetEmail({ email, otp, name });
         break;
@@ -38,31 +39,30 @@ function createTasker() {
   };
 
   const setup = () => {
-    const worker = new Worker(QUEUE.default, processor, { connection });
+    const mailWorker = new Worker(QUEUE.email, processor, { connection });
 
-    worker.on("completed", (job: Job) => {
+    mailWorker.on("completed", (job: Job) => {
       logger.info(`Job ${job.id} completed, task name: ${job.name}`);
     });
 
-    worker.on("failed", (job: Job | undefined, error: Error) => {
+    mailWorker.on("failed", (job: Job | undefined, error: Error) => {
       if (job) {
         logger.error(
-          `Job ${job.id} failed, task name: ${job.name}, error: ${error.message}`,
+          `Job ${job.id} failed, task name: ${job.name}, error: ${error.message}`
         );
-      }
-      else {
+      } else {
         logger.error(`Job failed, error: ${error.message}`);
       }
     });
 
-    worker.on("error", (err) => {
+    mailWorker.on("error", (err) => {
       logger.error(err);
     });
 
-    return worker;
+    return mailWorker;
   };
 
   return { setup };
 }
 
-export { createTasker, TASK };
+export { createEmailTasker, TASK };

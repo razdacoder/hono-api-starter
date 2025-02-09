@@ -6,3 +6,7 @@ const NODE_ENVIRONMENTS = {
 const TRACING = "tracing";
 
 export { NODE_ENVIRONMENTS, TRACING };
+
+export const QUEUE = {
+  email: "mailQueue",
+};
