@@ -11,9 +11,8 @@ import {
   validateOTP,
 } from "@/lib/encryption";
 import { encodeJWT, verifyJWT } from "@/lib/jwt";
-import { defaultQueue } from "@/lib/queue";
-import { getUserByEmail, userSelect } from "@/services/users";
-import { TASK } from "@/tasks/emails";
+import { mailQueue } from "@/lib/queue";
+import { EMAILTASKS } from "@/tasks/emails";
 
 import type {
   ActivationType,
@@ -25,6 +24,8 @@ import type {
   ResetPasswordType,
   VerifyTokenType,
 } from "./auth.routes";
+
+import { getUserByEmail, userSelect } from "../users/users.services";
 
 export const register: AppRouteHandler<RegisterRoute> = async (c) => {
   const { firstName, lastName, email, password } = c.req.valid("json");
@@ -52,13 +53,11 @@ export const register: AppRouteHandler<RegisterRoute> = async (c) => {
 
   const otp = await generateOrReuseOTP(user.id, "activation");
 
-  const job = await defaultQueue.add(TASK.SendActivationEmail, {
+  await mailQueue.add(EMAILTASKS.SendActivationEmail, {
     email: user.email,
     otp,
   });
-  c.var.logger.info(
-    `Job ${job.id} added to queue. Task scheduled for ${TASK.SendActivationEmail}`
-  );
+
   return c.json(
     {
       success: true,
@@ -82,13 +81,10 @@ export const resendActivation: AppRouteHandler<ResendActivationType> = async (
   }
   const otp = await generateOrReuseOTP(user.id, "activation");
 
-  const job = await defaultQueue.add(TASK.SendActivationEmail, {
+  await mailQueue.add(EMAILTASKS.SendActivationEmail, {
     email: user.email,
     otp,
   });
-  c.var.logger.info(
-    `Job ${job.id} added to queue. Task scheduled for ${TASK.SendActivationEmail}`
-  );
 
   return c.json(
     {
@@ -133,13 +129,10 @@ export const activation: AppRouteHandler<ActivationType> = async (c) => {
     .set({ isActive: true, email_verified: true })
     .where(eq(users.id, user.id));
 
-  const job = await defaultQueue.add(TASK.SendWelcomeEmail, {
+  await mailQueue.add(EMAILTASKS.SendWelcomeEmail, {
     email: user.email,
     name: user.firstName,
   });
-  c.var.logger.info(
-    `Job ${job.id} added to queue. Task scheduled for ${TASK.SendWelcomeEmail}`
-  );
 
   await invalidateOTP(user.id, "activation");
 
@@ -177,13 +170,11 @@ export const login: AppRouteHandler<LoginType> = async (c) => {
   if (!user.email_verified) {
     const otp = await generateOrReuseOTP(user.id, "activation");
 
-    const job = await defaultQueue.add(TASK.SendActivationEmail, {
+    const job = await mailQueue.add(EMAILTASKS.SendActivationEmail, {
       email: user.email,
       otp,
     });
-    c.var.logger.info(
-      `Job ${job.id} added to queue. Task scheduled for ${TASK.SendActivationEmail}`
-    );
+
     return c.json(
       {
         success: false,
@@ -239,14 +230,11 @@ export const resetPassword: AppRouteHandler<ResetPasswordType> = async (c) => {
 
   if (user) {
     const otp = await generateOrReuseOTP(user.id, "reset-password");
-    const job = await defaultQueue.add(TASK.SendPasswordResetEmail, {
+    await mailQueue.add(EMAILTASKS.SendPasswordResetEmail, {
       email: user.email,
       name: user.firstName,
       otp,
     });
-    c.var.logger.info(
-      `Job ${job.id} added to queue. Task scheduled for ${TASK.SendPasswordResetEmail}`
-    );
   }
 
   return c.json({

@@ -65,4 +65,4 @@ function createEmailTasker() {
   return { setup };
 }
 
-export { createEmailTasker, TASK };
+export { createEmailTasker, EMAILTASKS };
