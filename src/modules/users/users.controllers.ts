@@ -7,6 +7,7 @@ import { db } from "@/db";
 import { users } from "@/db/schema/users";
 import { getUserById, userSelect } from "@/modules/users/users.services";
 import { paginate } from "@/utils/create-paginated-data";
+
 import type {
   ChangeUserPassword,
   DeleteCurrentUser,
@@ -15,7 +16,6 @@ import type {
   Me,
   UpdateCurrentUser,
 } from "./users.routes";
-
 
 export const me: AppRouteHandler<Me> = async (c) => {
   const user = c.get("user");
@@ -53,7 +53,7 @@ export const getUser: AppRouteHandler<GetUser> = async (c) => {
 };
 
 export const updateCurrentUser: AppRouteHandler<UpdateCurrentUser> = async (
-  c
+  c,
 ) => {
   const payload = c.req.valid("json");
   const user = c.get("user");
@@ -69,7 +69,7 @@ export const updateCurrentUser: AppRouteHandler<UpdateCurrentUser> = async (
 };
 
 export const deleteCurrentUser: AppRouteHandler<DeleteCurrentUser> = async (
-  c
+  c,
 ) => {
   const { current_password } = c.req.valid("json");
   const user = c.get("user");
@@ -92,7 +92,7 @@ export const deleteCurrentUser: AppRouteHandler<DeleteCurrentUser> = async (
 };
 
 export const changeUserPassword: AppRouteHandler<ChangeUserPassword> = async (
-  c
+  c,
 ) => {
   const { current_password, new_password } = c.req.valid("json");
   const user = c.get("user");
@@ -103,7 +103,7 @@ export const changeUserPassword: AppRouteHandler<ChangeUserPassword> = async (
 
   const isValidPassword = await argon2.verify(
     userPassword.password,
-    current_password
+    current_password,
   );
   if (!isValidPassword) {
     return c.json({ success: false, message: "Invalid Password" }, 400);
@@ -117,6 +117,6 @@ export const changeUserPassword: AppRouteHandler<ChangeUserPassword> = async (
 
   return c.json(
     { success: true, message: "Password updated sucessfully" },
-    200
+    200,
   );
 };

@@ -10,7 +10,8 @@ export function createSuccessSchema(schema?: ZodSchema) {
         .openapi({
           example: true,
         })
-        .default(true).optional(),
+        .default(true)
+        .optional(),
       message: z.string(),
       data: schema,
     });
@@ -21,7 +22,8 @@ export function createSuccessSchema(schema?: ZodSchema) {
       .openapi({
         example: true,
       })
-      .default(true).optional(),
+      .default(true)
+      .optional(),
     message: z.string(),
   });
 }
@@ -58,7 +60,8 @@ export function createPaginatedSchema(dataSchema: ZodSchema) {
       .openapi({
         example: true,
       })
-      .default(true).optional(),
+      .default(true)
+      .optional(),
     message: z.string(),
     data: z.object({
       items: z.array(dataSchema), // Array of items of the given schema

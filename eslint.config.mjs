@@ -7,7 +7,6 @@ export default antfu(
   {
     type: "app",
     typescript: true,
-    formatters: true,
     stylistic: {
       indent: 2,
       semi: true,
@@ -21,6 +20,9 @@ export default antfu(
       "antfu/no-top-level-await": ["off"],
       "node/prefer-global/process": ["off"],
       "node/no-process-env": ["error"],
+      "style/comma-dangle": ["off"],
+      "style/brace-style": ["off"],
+
       "perfectionist/sort-imports": [
         "error",
         {

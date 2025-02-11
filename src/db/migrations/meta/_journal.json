@@ -1,26 +1,12 @@
 {
   "version": "7",
-  "dialect": "postgresql",
+  "dialect": "sqlite",
   "entries": [
     {
       "idx": 0,
-      "version": "7",
-      "when": 1736169262888,
-      "tag": "0000_known_human_torch",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1736757525243,
-      "tag": "0001_sad_bastion",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1736940052791,
-      "tag": "0002_regular_shatterstar",
+      "version": "6",
+      "when": 1739277454489,
+      "tag": "0000_concerned_impossible_man",
       "breakpoints": true
     }
   ]

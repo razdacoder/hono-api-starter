@@ -1,4 +1,5 @@
 import { z } from "@hono/zod-openapi";
+
 import { userSelectSchema } from "@/db/schema/users";
 
 export const emailSchema = z.object({
@@ -32,30 +33,28 @@ export const resetPasswordConfirmSchema = z
     new_password: z.string().min(8),
     confirm_new_password: z.string().min(8),
   })
-  .refine((data) => data.new_password === data.confirm_new_password, {
+  .refine(data => data.new_password === data.confirm_new_password, {
     path: ["confirm_new_password"],
   });
 
-
 export const accessTokenSchema = z.object({
-    access_token: z.string(),
-  })
-
+  access_token: z.string(),
+});
 
 export const refreshTokenSchema = z.object({
-    refresh_token: z.string(),
-  })
+  refresh_token: z.string(),
+});
 
 export const currentPasswordSchema = z.object({
-    current_password: z.string().min(8),
-  })
+  current_password: z.string().min(8),
+});
 
-  export const changePasswordSchema = z
+export const changePasswordSchema = z
   .object({
     current_password: z.string().min(8),
     new_password: z.string().min(8),
     confirm_new_password: z.string().min(8),
   })
-  .refine((data) => data.new_password === data.confirm_new_password, {
+  .refine(data => data.new_password === data.confirm_new_password, {
     path: ["confirm_new_password"],
-  })
+  });

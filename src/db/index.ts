@@ -1,9 +1,5 @@
-import { drizzle } from "drizzle-orm/postgres-js";
+import { drizzle } from "drizzle-orm/libsql";
 
-import env from "@/env.js";
+import env from "@/env";
 
-import { users } from "./schema/users.js";
-
-export const db = drizzle(env.DATABASE_URL, { schema: {
-  users,
-} });
+export const db = drizzle({ connection: { url: env.DB_FILE_NAME } });

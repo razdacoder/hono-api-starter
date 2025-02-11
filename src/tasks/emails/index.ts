@@ -48,9 +48,10 @@ function createEmailTasker() {
     mailWorker.on("failed", (job: Job | undefined, error: Error) => {
       if (job) {
         logger.error(
-          `Job ${job.id} failed, task name: ${job.name}, error: ${error.message}`
+          `Job ${job.id} failed, task name: ${job.name}, error: ${error.message}`,
         );
-      } else {
+      }
+      else {
         logger.error(`Job failed, error: ${error.message}`);
       }
     });

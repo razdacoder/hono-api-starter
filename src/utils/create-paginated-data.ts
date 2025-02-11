@@ -29,12 +29,12 @@ export async function paginate<T>(
 
   // Get total items count
   const items = await dbQuery();
-  const totalItems = items.length
+  const totalItems = items.length;
   const totalPages = Math.ceil(totalItems / size);
 
   // Get paginated items
   // const offset = (currentPage - 1) * size;
-  
+
   const hasPrevPage = currentPage > 1;
   const hasNextPage = currentPage < totalPages;
   const prevPage = hasPrevPage ? currentPage - 1 : null;

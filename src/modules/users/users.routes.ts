@@ -3,16 +3,15 @@ import { createRoute, z } from "@hono/zod-openapi";
 import { userSelectSchema, userUpdateSchema } from "@/db/schema/users";
 import { authCheck } from "@/middlewares/auth";
 import { isAdminCheck } from "@/middlewares/is-admin";
-
 import {
+  createErrorSchema,
   createPaginatedSchema,
   createSuccessSchema,
-  createErrorSchema,
 } from "@/utils/create-response-schema";
 import * as HttpStatusCodes from "@/utils/http-status-code";
 import IdUUIDParamsSchema from "@/utils/id-uuid-param";
 import { jsonContent, jsonContentRequired } from "@/utils/json-content";
-import { currentPasswordSchema, changePasswordSchema } from "@/utils/schema";
+import { changePasswordSchema, currentPasswordSchema } from "@/utils/schema";
 
 const tags = ["Users"];
 
@@ -24,11 +23,11 @@ export const me = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(userSelectSchema),
-      "The current logged in user"
+      "The current logged in user",
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       createErrorSchema(),
-      "Unauthorized user errorrs"
+      "Unauthorized user errorrs",
     ),
   },
   security: [
@@ -52,11 +51,11 @@ export const list = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createPaginatedSchema(userSelectSchema),
-      "List of users"
+      "List of users",
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       createErrorSchema(),
-      "Unauthorized"
+      "Unauthorized",
     ),
   },
   security: [
@@ -77,11 +76,11 @@ export const getUser = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(userSelectSchema),
-      "Get user successfull"
+      "Get user successfull",
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       createErrorSchema(),
-      "User not found error"
+      "User not found error",
     ),
   },
   security: [
@@ -102,15 +101,15 @@ export const updateCurrentUser = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(userSelectSchema),
-      "User update successfull"
+      "User update successfull",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(userUpdateSchema),
-      "User update validation errors"
+      "User update validation errors",
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       createErrorSchema(),
-      "Unauthorized"
+      "Unauthorized",
     ),
   },
   security: [
@@ -128,25 +127,25 @@ export const deleteCurrentUser = createRoute({
   request: {
     body: jsonContentRequired(
       currentPasswordSchema,
-      "Delete user request body"
+      "Delete user request body",
     ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(),
-      "User deletion sucessfull"
+      "User deletion sucessfull",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(currentPasswordSchema),
-      "Validation errors"
+      "Validation errors",
     ),
     [HttpStatusCodes.BAD_REQUEST]: jsonContent(
       createErrorSchema(),
-      "Invalid password"
+      "Invalid password",
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       createErrorSchema(),
-      "Unauthorized"
+      "Unauthorized",
     ),
   },
   security: [{ Bearer: [] }],
@@ -160,25 +159,25 @@ export const changeUserPassword = createRoute({
   request: {
     body: jsonContentRequired(
       changePasswordSchema,
-      "Change password request body"
+      "Change password request body",
     ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(),
-      "Password changed sucessfully"
+      "Password changed sucessfully",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       changePasswordSchema,
-      "Validation errors"
+      "Validation errors",
     ),
     [HttpStatusCodes.BAD_REQUEST]: jsonContent(
       createErrorSchema(),
-      "Invalid Password Error"
+      "Invalid Password Error",
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       createErrorSchema(),
-      "Unauthorized"
+      "Unauthorized",
     ),
   },
   security: [{ Bearer: [] }],

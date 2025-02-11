@@ -7,7 +7,6 @@ import * as HttpStatusCodes from "@/utils/http-status-code";
 import { jsonContent, jsonContentRequired } from "@/utils/json-content";
 import { accessTokenSchema, emailOtpSchema, emailSchema, loginRequestSchema, loginResponseSchema, refreshTokenSchema, resetPasswordConfirmSchema, verifyEmailSchema } from "@/utils/schema";
 
-
 const tags = ["Auth"];
 
 export const register = createRoute({
@@ -26,9 +25,7 @@ export const register = createRoute({
       createErrorSchema(userInsertSchema),
       "User creation validation errors",
     ),
-    [HttpStatusCodes.BAD_REQUEST]: jsonContent(createErrorSchema(),
-      "User already exists error",
-    ),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(createErrorSchema(), "User already exists error"),
   },
 });
 
@@ -38,7 +35,7 @@ export const resendActivation = createRoute({
   method: "post",
   request: {
     body: jsonContentRequired(
-     emailSchema,
+      emailSchema,
       "Resend activation request body",
     ),
   },
@@ -66,7 +63,7 @@ export const activation = createRoute({
   tags,
   request: {
     body: jsonContentRequired(
-     emailOtpSchema,
+      emailOtpSchema,
       "Activation request body",
     ),
   },
@@ -96,7 +93,7 @@ export const login = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(
-       loginResponseSchema,
+        loginResponseSchema,
       ),
       "Login sucessfull response",
     ),
@@ -108,7 +105,7 @@ export const login = createRoute({
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       createErrorSchema(
-       verifyEmailSchema,
+        verifyEmailSchema,
       ),
       "Invalid Credentials Error",
     ),
@@ -145,7 +142,7 @@ export const resetPasswordConfirm = createRoute({
   tags,
   request: {
     body: jsonContentRequired(
-     resetPasswordConfirmSchema,
+      resetPasswordConfirmSchema,
       "Reset Password Confirm Request Body",
     ),
   },
@@ -185,7 +182,7 @@ export const refreshToken = createRoute({
       "Refresh token successfull",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-     refreshTokenSchema,
+      refreshTokenSchema,
       "Refresh token validation errors",
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
