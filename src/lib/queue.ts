@@ -11,18 +11,28 @@ const connection = new IORedis({
   maxRetriesPerRequest: null,
 });
 
-// Reuse the ioredis instance
-const mailQueue = new Queue(QUEUE.email, {
-  connection,
-  defaultJobOptions: {
-    removeOnComplete: {
-      count: 1000, // keep up to 1000 jobs
-      age: 24 * 3600, // keep up to 24 hours
-    },
-    removeOnFail: {
-      age: 24 * 3600, // keep up to 24 hours
-    },
+const defaultJobOptions = {
+  removeOnComplete: {
+    count: 1000, // keep up to 1000 jobs
+    age: 24 * 3600, // keep up to 24 hours
   },
+  removeOnFail: {
+    age: 24 * 3600, // keep up to 24 hours
+  },
+};
+
+// Reuse the ioredis instance
+const mailQueue = new Queue<EmailJobData[keyof EmailJobData]>(QUEUE.email, {
+  connection,
+  defaultJobOptions,
 });
 
-export { connection, mailQueue };
+async function addEmailJob<T extends keyof EmailJobData>(
+  taskName: T,
+  data: EmailJobData[T],
+  options?: { delay?: number; priority?: number }
+) {
+  await mailQueue.add(taskName, data, options);
+}
+
+export { addEmailJob, connection, mailQueue };

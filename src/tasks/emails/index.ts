@@ -12,34 +12,50 @@ const EMAILTASKS = {
   SendWelcomeEmail: "SendWelcomeEmail",
   SendActivationEmail: "SendActivationEmail",
   SendPasswordResetEmail: "SendPasswordResetEmail",
-};
+} as const;
+
+type EmailTaskType = keyof typeof EMAILTASKS;
+
+function isJobType<T extends EmailTaskType>(
+  job: Job<EmailJobData[keyof EmailJobData]>,
+  taskType: T
+): job is Job<EmailJobData[T]> {
+  return job.name === taskType;
+}
+
+async function processor(job: Job<EmailJobData[keyof EmailJobData]>) {
+  switch (job.name) {
+    case EMAILTASKS.SendWelcomeEmail:
+      if (isJobType(job, EMAILTASKS.SendWelcomeEmail)) {
+        await sendWelcomeEmail(job.data); // ✅ job.data is correctly inferred
+      }
+      break;
+
+    case EMAILTASKS.SendActivationEmail:
+      if (isJobType(job, EMAILTASKS.SendActivationEmail)) {
+        await sendActivationEmail(job.data);
+      }
+      break;
+
+    case EMAILTASKS.SendPasswordResetEmail:
+      if (isJobType(job, EMAILTASKS.SendPasswordResetEmail)) {
+        await sendPasswordResetEmail(job.data);
+      }
+      break;
+
+    default:
+      logger.warn(`Unhandled task: ${job.name}`);
+  }
+}
 
 function createEmailTasker() {
-  const processor = async (job: Job) => {
-    switch (job.name) {
-      case EMAILTASKS.SendWelcomeEmail: {
-        const { email, name } = job.data;
-        await sendWelcomeEmail({ name, email });
-        break;
-      }
-      case EMAILTASKS.SendActivationEmail: {
-        const { email, otp } = job.data;
-        await sendActivationEmail({ email, otp });
-        break;
-      }
-      case EMAILTASKS.SendPasswordResetEmail: {
-        const { email, otp, name } = job.data;
-        await sendPasswordResetEmail({ email, otp, name });
-        break;
-      }
-      default: {
-        logger.warn(`Unhandled task: ${job.name}`);
-      }
-    }
-  };
-
   const setup = () => {
-    const mailWorker = new Worker(QUEUE.email, processor, { connection });
+    // Type the worker with the email job data
+    const mailWorker = new Worker<EmailJobData[keyof EmailJobData]>(
+      QUEUE.email,
+      processor,
+      { connection }
+    );
 
     mailWorker.on("completed", (job: Job) => {
       logger.info(`Job ${job.id} completed, task name: ${job.name}`);
@@ -48,10 +64,9 @@ function createEmailTasker() {
     mailWorker.on("failed", (job: Job | undefined, error: Error) => {
       if (job) {
         logger.error(
-          `Job ${job.id} failed, task name: ${job.name}, error: ${error.message}`,
+          `Job ${job.id} failed, task: ${job.name}, error: ${error.message}`
         );
-      }
-      else {
+      } else {
         logger.error(`Job failed, error: ${error.message}`);
       }
     });

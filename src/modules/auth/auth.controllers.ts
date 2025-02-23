@@ -11,11 +11,8 @@ import {
   validateOTP,
 } from "@/lib/encryption";
 import { encodeJWT, verifyJWT } from "@/lib/jwt";
-import { mailQueue } from "@/lib/queue";
+import { addEmailJob } from "@/lib/queue";
 import { EMAILTASKS } from "@/tasks/emails";
-import sendActivationEmail from "@/tasks/emails/send-activation-email";
-import sendPasswordResetEmail from "@/tasks/emails/send-password-reset-email";
-import sendWelcomeEmail from "@/tasks/emails/send-welcome-email";
 
 import type {
   ActivationType,
@@ -56,12 +53,7 @@ export const register: AppRouteHandler<RegisterRoute> = async (c) => {
 
   const otp = await generateOrReuseOTP(user.id, "activation");
 
-  await sendActivationEmail({ email: user.email, otp });
-
-  await mailQueue.add(EMAILTASKS.SendActivationEmail, {
-    email: user.email,
-    otp,
-  });
+  await addEmailJob(EMAILTASKS.SendActivationEmail, { email: user.email, otp });
 
   return c.json(
     {
@@ -86,11 +78,7 @@ export const resendActivation: AppRouteHandler<ResendActivationType> = async (
   }
   const otp = await generateOrReuseOTP(user.id, "activation");
 
-  await sendActivationEmail({ email: user.email, otp });
-  // await mailQueue.add(EMAILTASKS.SendActivationEmail, {
-  //   email: user.email,
-  //   otp,
-  // });
+  await addEmailJob(EMAILTASKS.SendActivationEmail, { email: user.email, otp });
 
   return c.json(
     {
@@ -132,15 +120,13 @@ export const activation: AppRouteHandler<ActivationType> = async (c) => {
 
   await db
     .update(userTable)
-    .set({ isActive: true, email_verified: true })
+    .set({ isActive: true, emailVerifiedAt: new Date() })
     .where(eq(userTable.id, user.id));
 
-  await sendWelcomeEmail({ name: user.firstName, email: user.email });
-
-  // await mailQueue.add(EMAILTASKS.SendWelcomeEmail, {
-  //   email: user.email,
-  //   name: user.firstName,
-  // });
+  await addEmailJob(EMAILTASKS.SendWelcomeEmail, {
+    email: user.email,
+    name: user.firstName,
+  });
 
   await invalidateOTP(user.id, "activation");
 
@@ -181,12 +167,10 @@ export const login: AppRouteHandler<LoginType> = async (c) => {
   if (!user.emailVerifiedAt) {
     const otp = await generateOrReuseOTP(user.id, "activation");
 
-    await sendActivationEmail({ email: user.email, otp });
-
-    // const job = await mailQueue.add(EMAILTASKS.SendActivationEmail, {
-    //   email: user.email,
-    //   otp,
-    // });
+    await addEmailJob(EMAILTASKS.SendActivationEmail, {
+      email: user.email,
+      otp,
+    });
 
     return c.json(
       {
@@ -244,12 +228,11 @@ export const resetPassword: AppRouteHandler<ResetPasswordType> = async (c) => {
   if (user) {
     const otp = await generateOrReuseOTP(user.id, "reset-password");
 
-    sendPasswordResetEmail({ email: user.email, name: user.firstName, otp });
-    // await mailQueue.add(EMAILTASKS.SendPasswordResetEmail, {
-    //   email: user.email,
-    //   name: user.firstName,
-    //   otp,
-    // });
+    await addEmailJob(EMAILTASKS.SendPasswordResetEmail, {
+      email: user.email,
+      name: user.firstName,
+      otp,
+    });
   }
 
   return c.json({
