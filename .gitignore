@@ -17,6 +17,8 @@ node_modules/
 .env.production
 .vscode
 
+migrations
+
 # logs
 logs/
 *.log

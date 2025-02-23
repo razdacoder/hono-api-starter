@@ -11,6 +11,7 @@ import {
   validateOTP,
 } from "@/lib/encryption";
 import { encodeJWT, verifyJWT } from "@/lib/jwt";
+import { logger } from "@/lib/logger";
 import { addEmailJob } from "@/lib/queue";
 import { EMAILTASKS } from "@/tasks/emails";
 
@@ -57,7 +58,6 @@ export const register: AppRouteHandler<RegisterRoute> = async (c) => {
 
   return c.json(
     {
-      success: true,
       message: "User created Successfully",
       data: user,
     },
@@ -74,7 +74,7 @@ export const resendActivation: AppRouteHandler<ResendActivationType> = async (
     .from(userTable)
     .where(eq(userTable.email, email));
   if (!user) {
-    return c.json({ success: false, message: "No active account found" }, 400);
+    return c.json({ message: "No active account found" }, 400);
   }
   const otp = await generateOrReuseOTP(user.id, "activation");
 
@@ -82,7 +82,6 @@ export const resendActivation: AppRouteHandler<ResendActivationType> = async (
 
   return c.json(
     {
-      success: true,
       message: "OTP resend successful",
     },
     200
@@ -99,7 +98,6 @@ export const activation: AppRouteHandler<ActivationType> = async (c) => {
   if (!user) {
     return c.json(
       {
-        success: false,
         message: "Invalid OTP",
       },
       400
@@ -111,7 +109,6 @@ export const activation: AppRouteHandler<ActivationType> = async (c) => {
   if (!isValidOTP) {
     return c.json(
       {
-        success: false,
         message: "Invalid or Expired OTP",
       },
       400
@@ -132,7 +129,6 @@ export const activation: AppRouteHandler<ActivationType> = async (c) => {
 
   return c.json(
     {
-      success: true,
       message: "Account activated successfully",
     },
     200
@@ -148,16 +144,12 @@ export const login: AppRouteHandler<LoginType> = async (c) => {
     .where(eq(userTable.email, email));
 
   if (!user || !(await argon2.verify(user.password, password))) {
-    return c.json(
-      { success: false, message: "Invalid email or password" },
-      401
-    );
+    return c.json({ message: "Invalid email or password" }, 401);
   }
 
   if (!user.isActive) {
     return c.json(
       {
-        success: false,
         message: "Account not active",
       },
       401
@@ -174,7 +166,6 @@ export const login: AppRouteHandler<LoginType> = async (c) => {
 
     return c.json(
       {
-        success: false,
         message: "Invalid email or password",
         data: {
           verify_email: true,
@@ -208,7 +199,6 @@ export const login: AppRouteHandler<LoginType> = async (c) => {
 
   return c.json(
     {
-      success: true,
       message: "Login successful",
       data: {
         access_token,
@@ -236,7 +226,6 @@ export const resetPassword: AppRouteHandler<ResetPasswordType> = async (c) => {
   }
 
   return c.json({
-    success: true,
     message: "Password reset mail sent",
   });
 };
@@ -249,13 +238,13 @@ export const resetPasswordConfirm: AppRouteHandler<
   const user = await getUserByEmail(email);
 
   if (!user) {
-    return c.json({ success: false, message: "Invalid or expired otp" }, 400);
+    return c.json({ message: "Invalid or expired otp" }, 400);
   }
 
   const isValidOTP = await validateOTP(user.id, otp, "reset-password");
 
   if (!isValidOTP) {
-    return c.json({ success: false, message: "Invalid or expired otp" }, 400);
+    return c.json({ message: "Invalid or expired otp" }, 400);
   }
 
   const hashedPassword = await argon2.hash(new_password);
@@ -267,7 +256,7 @@ export const resetPasswordConfirm: AppRouteHandler<
 
   await invalidateOTP(user.id, "reset-password");
 
-  return c.json({ success: true, message: "Password reset successful" }, 200);
+  return c.json({ message: "Password reset successful" }, 200);
 };
 
 export const refreshToken: AppRouteHandler<RefreshTokenType> = async (c) => {
@@ -283,7 +272,6 @@ export const refreshToken: AppRouteHandler<RefreshTokenType> = async (c) => {
 
     return c.json(
       {
-        success: true,
         message: "Token refresh successful",
         data: {
           access_token,
@@ -292,14 +280,11 @@ export const refreshToken: AppRouteHandler<RefreshTokenType> = async (c) => {
       200
     );
   } catch (e) {
-    c.var.logger.error(e);
-    return c.json({ success: false, message: "Unauthorized" }, 401);
+    logger.error(e);
+    return c.json({ message: "Unauthorized" }, 401);
   }
 };
 
 export const verifyToken: AppRouteHandler<VerifyTokenType> = async (c) => {
-  return c.json(
-    { success: true, message: "Token verification Successful" },
-    200
-  );
+  return c.json({ message: "Token verification Successful" }, 200);
 };
