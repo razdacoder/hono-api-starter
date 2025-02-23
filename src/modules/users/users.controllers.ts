@@ -5,7 +5,12 @@ import type { AppRouteHandler } from "@/lib/types";
 
 import { db } from "@/db";
 import { userTable } from "@/db/schema/users";
-import { getUserById, userSelect } from "@/modules/users/users.services";
+import {
+  deleteUser,
+  getUserById,
+  updateUser,
+  userSelect,
+} from "@/modules/users/users.services";
 import { paginate } from "@/utils/create-paginated-data";
 
 import type {
@@ -20,7 +25,6 @@ import type {
 export const me: AppRouteHandler<Me> = async (c) => {
   const user = c.get("user");
   return c.json({
-    success: true,
     message: "User fetched successfully",
     data: user,
   });
@@ -35,7 +39,6 @@ export const list: AppRouteHandler<List> = async (c) => {
   });
   return c.json(
     {
-      success: true,
       message: "User list fetched successfully",
       data: result,
     },
@@ -45,11 +48,11 @@ export const list: AppRouteHandler<List> = async (c) => {
 
 export const getUser: AppRouteHandler<GetUser> = async (c) => {
   const { id } = c.req.valid("param");
-  const user = await getUserById(id);
+  const user = await getUserById({ id, withPassword: false });
   if (!user) {
-    return c.json({ success: false, message: "User not found" }, 404);
+    return c.json({ message: "User not found" }, 404);
   }
-  return c.json({ success: true, message: "User retrieve successfully" }, 200);
+  return c.json({ message: "User retrieve successfully" }, 200);
 };
 
 export const updateCurrentUser: AppRouteHandler<UpdateCurrentUser> = async (
@@ -57,15 +60,8 @@ export const updateCurrentUser: AppRouteHandler<UpdateCurrentUser> = async (
 ) => {
   const payload = c.req.valid("json");
   const user = c.get("user");
-  const updatedUser = await db
-    .update(userTable)
-    .set(payload)
-    .where(eq(userTable.id, user.id))
-    .returning(userSelect);
-  return c.json(
-    { success: true, message: "User updated successful", data: updatedUser },
-    200
-  );
+  const updatedUser = await updateUser(user.id, payload);
+  return c.json({ message: "User updated successful", data: updatedUser }, 200);
 };
 
 export const deleteCurrentUser: AppRouteHandler<DeleteCurrentUser> = async (
@@ -73,22 +69,22 @@ export const deleteCurrentUser: AppRouteHandler<DeleteCurrentUser> = async (
 ) => {
   const { current_password } = c.req.valid("json");
   const user = c.get("user");
-  const [userWithPass] = await db
-    .select({ password: userTable.password })
-    .from(userTable)
-    .where(eq(userTable.id, user.id));
+  const userWithPassword = await getUserById({
+    id: user.id,
+    withPassword: true,
+  });
+  if (!userWithPassword) {
+    return c.json({ message: "Unauthorized" }, 401);
+  }
   const isValidPassword = await argon2.verify(
-    userWithPass.password,
+    userWithPassword.password,
     current_password
   );
   if (!isValidPassword) {
-    return c.json({ success: false, message: "Invalid password" }, 400);
+    return c.json({ message: "Invalid password" }, 400);
   }
-  await db.delete(userTable).where(eq(userTable.id, user.id));
-  return c.json(
-    { success: true, message: "Account deleted successfully" },
-    200
-  );
+  await deleteUser(user.id, true);
+  return c.json({ message: "Account deleted successfully" }, 200);
 };
 
 export const changeUserPassword: AppRouteHandler<ChangeUserPassword> = async (
@@ -96,17 +92,22 @@ export const changeUserPassword: AppRouteHandler<ChangeUserPassword> = async (
 ) => {
   const { current_password, new_password } = c.req.valid("json");
   const user = c.get("user");
-  const [userPassword] = await db
-    .select({ password: userTable.password })
-    .from(userTable)
-    .where(eq(userTable.id, user.id));
+  const userWithPassword = await getUserById({
+    id: user.id,
+    withPassword: true,
+  });
+
+  if (!userWithPassword) {
+    return c.json({ message: "Unauthorized" }, 401);
+  }
 
   const isValidPassword = await argon2.verify(
-    userPassword.password,
+    userWithPassword.password,
     current_password
   );
+
   if (!isValidPassword) {
-    return c.json({ success: false, message: "Invalid Password" }, 400);
+    return c.json({ message: "Invalid Password" }, 400);
   }
 
   const hashedPassword = await argon2.hash(new_password);
@@ -115,8 +116,5 @@ export const changeUserPassword: AppRouteHandler<ChangeUserPassword> = async (
     .set({ password: hashedPassword })
     .where(eq(userTable.id, user.id));
 
-  return c.json(
-    { success: true, message: "Password updated successfully" },
-    200
-  );
+  return c.json({ message: "Password updated successfully" }, 200);
 };

@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import type {
   User,
   userInsertSchema,
+  userUpdateSchema,
   UserWithPassword,
 } from "@/db/schema/users";
 
@@ -83,4 +84,28 @@ export async function createUser(values: z.infer<typeof userInsertSchema>) {
     .returning(userSelect);
 
   return user;
+}
+
+export async function updateUser(
+  id: string,
+  values: z.infer<typeof userUpdateSchema>
+) {
+  const [updatedUser] = await db
+    .update(userTable)
+    .set(values)
+    .where(eq(userTable.id, id))
+    .returning(userSelect);
+
+  return updatedUser;
+}
+
+export async function deleteUser(id: string, soft: boolean) {
+  if (soft) {
+    await db
+      .update(userTable)
+      .set({ deletedAt: new Date() })
+      .where(eq(userTable.id, id));
+    return;
+  }
+  await db.delete(userTable).where(eq(userTable.id, id));
 }
