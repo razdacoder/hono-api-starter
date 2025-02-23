@@ -44,6 +44,23 @@ export const userInsertSchema = createInsertSchema(userTable)
     emailVerifiedAt: true,
   });
 
+export const userAdminInsertSchema = createInsertSchema(userTable)
+  .required({
+    firstName: true,
+    lastName: true,
+    email: true,
+    password: true,
+    role: true,
+  })
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+    deletedAt: true,
+    isActive: true,
+    emailVerifiedAt: true,
+  });
+
 export const userSelectSchema = createSelectSchema(userTable).omit({
   password: true,
 });
