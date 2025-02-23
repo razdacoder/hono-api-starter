@@ -12,7 +12,7 @@ const EnvSchema = z.object({
   LOG_LEVEL: z
     .enum(["fatal", "error", "warn", "info", "debug", "trace"])
     .default("debug"),
-  DB_FILE_NAME: z.string(),
+  DATABASE_URL: z.string().url(),
   SECRET_KEY: z.string(),
   EMAIL_HOST: z.string(),
   EMAIL_PORT: z.coerce.number(),
@@ -30,8 +30,7 @@ let env: Env;
 try {
   // eslint-disable-next-line node/no-process-env
   env = EnvSchema.parse(process.env);
-}
-catch (e) {
+} catch (e) {
   const error = e as ZodError;
   console.error("Invalid Env");
   console.error(error.flatten().fieldErrors);

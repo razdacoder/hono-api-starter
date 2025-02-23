@@ -1,9 +1,15 @@
-import { pino } from "pino";
+import dayjs from "dayjs";
+import pinoLogger from "pino";
 
-import env from "@/env";
-
-const logger = pino({
-  level: env.LOG_LEVEL || "info",
+export const logger = pinoLogger({
+  transport: {
+    target: "pino-pretty",
+    options: {
+      colorize: true,
+    },
+  },
+  base: {
+    pid: false,
+  },
+  timestamp: () => `,"time":"${dayjs().format()}"`,
 });
-
-export { logger };
