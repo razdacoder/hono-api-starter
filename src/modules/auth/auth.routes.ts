@@ -2,10 +2,22 @@ import { createRoute } from "@hono/zod-openapi";
 
 import { userInsertSchema, userSelectSchema } from "@/db/schema/users";
 import { authCheck } from "@/middlewares/auth";
-import { createErrorSchema, createSuccessSchema } from "@/utils/create-response-schema";
+import {
+  createErrorSchema,
+  createSuccessSchema,
+} from "@/utils/create-response-schema";
 import * as HttpStatusCodes from "@/utils/http-status-code";
 import { jsonContent, jsonContentRequired } from "@/utils/json-content";
-import { accessTokenSchema, emailOtpSchema, emailSchema, loginRequestSchema, loginResponseSchema, refreshTokenSchema, resetPasswordConfirmSchema, verifyEmailSchema } from "@/utils/schema";
+import {
+  accessTokenSchema,
+  emailOtpSchema,
+  emailSchema,
+  loginRequestSchema,
+  loginResponseSchema,
+  refreshTokenSchema,
+  resetPasswordConfirmSchema,
+  verifyEmailSchema,
+} from "@/utils/schema";
 
 const tags = ["Auth"];
 
@@ -19,13 +31,16 @@ export const register = createRoute({
   responses: {
     [HttpStatusCodes.CREATED]: jsonContent(
       createSuccessSchema(userSelectSchema),
-      "The user created",
+      "The user created"
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(userInsertSchema),
-      "User creation validation errors",
+      "User creation validation errors"
     ),
-    [HttpStatusCodes.BAD_REQUEST]: jsonContent(createErrorSchema(), "User already exists error"),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      createErrorSchema(),
+      "User already exists error"
+    ),
   },
 });
 
@@ -34,25 +49,20 @@ export const resendActivation = createRoute({
   tags,
   method: "post",
   request: {
-    body: jsonContentRequired(
-      emailSchema,
-      "Resend activation request body",
-    ),
+    body: jsonContentRequired(emailSchema, "Resend activation request body"),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(),
-      "The user created",
+      "The user created"
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createErrorSchema(
-        emailSchema,
-      ),
-      "Validation Errors",
+      createErrorSchema(emailSchema),
+      "Validation Errors"
     ),
     [HttpStatusCodes.BAD_REQUEST]: jsonContent(
       createErrorSchema(),
-      "No user found",
+      "No user found"
     ),
   },
 });
@@ -62,20 +72,20 @@ export const activation = createRoute({
   method: "post",
   tags,
   request: {
-    body: jsonContentRequired(
-      emailOtpSchema,
-      "Activation request body",
-    ),
+    body: jsonContentRequired(emailOtpSchema, "Activation request body"),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(),
-      "Account activation sucessfull",
+      "Account activation successful"
     ),
-    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(createErrorSchema(emailOtpSchema), "Validation errors"),
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      createErrorSchema(emailOtpSchema),
+      "Validation errors"
+    ),
     [HttpStatusCodes.BAD_REQUEST]: jsonContent(
       createErrorSchema(),
-      "Activation Invalid OTP",
+      "Activation Invalid OTP"
     ),
   },
 });
@@ -85,29 +95,20 @@ export const login = createRoute({
   method: "post",
   tags,
   request: {
-    body: jsonContentRequired(
-      loginRequestSchema,
-      "Request body for login",
-    ),
+    body: jsonContentRequired(loginRequestSchema, "Request body for login"),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      createSuccessSchema(
-        loginResponseSchema,
-      ),
-      "Login sucessfull response",
+      createSuccessSchema(loginResponseSchema),
+      "Login sucessfull response"
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createErrorSchema(
-        loginRequestSchema,
-      ),
-      "Validation errors for login",
+      createErrorSchema(loginRequestSchema),
+      "Validation errors for login"
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
-      createErrorSchema(
-        verifyEmailSchema,
-      ),
-      "Invalid Credentials Error",
+      createErrorSchema(verifyEmailSchema),
+      "Invalid Credentials Error"
     ),
   },
 });
@@ -117,21 +118,16 @@ export const resetPassword = createRoute({
   method: "post",
   tags,
   request: {
-    body: jsonContentRequired(
-      emailSchema,
-      "Password reset request body",
-    ),
+    body: jsonContentRequired(emailSchema, "Password reset request body"),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(),
-      "Password reset request sucessfull",
+      "Password reset request sucessfull"
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createErrorSchema(
-        emailSchema,
-      ),
-      "Password reset validation errors",
+      createErrorSchema(emailSchema),
+      "Password reset validation errors"
     ),
   },
 });
@@ -143,23 +139,21 @@ export const resetPasswordConfirm = createRoute({
   request: {
     body: jsonContentRequired(
       resetPasswordConfirmSchema,
-      "Reset Password Confirm Request Body",
+      "Reset Password Confirm Request Body"
     ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(),
-      "Password reset sucessfull",
+      "Password reset sucessfull"
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createErrorSchema(
-        resetPasswordConfirmSchema,
-      ),
-      "Password reset validation errors",
+      createErrorSchema(resetPasswordConfirmSchema),
+      "Password reset validation errors"
     ),
     [HttpStatusCodes.BAD_REQUEST]: jsonContent(
       createErrorSchema(),
-      "Bad request errors",
+      "Bad request errors"
     ),
   },
 });
@@ -169,25 +163,20 @@ export const refreshToken = createRoute({
   method: "post",
   tags,
   request: {
-    body: jsonContentRequired(
-      refreshTokenSchema,
-      "Refresh token request body",
-    ),
+    body: jsonContentRequired(refreshTokenSchema, "Refresh token request body"),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      createSuccessSchema(
-        accessTokenSchema,
-      ),
-      "Refresh token successfull",
+      createSuccessSchema(accessTokenSchema),
+      "Refresh token successfull"
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       refreshTokenSchema,
-      "Refresh token validation errors",
+      "Refresh token validation errors"
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       createErrorSchema(),
-      "Unauthoried error",
+      "Unauthoried error"
     ),
   },
 });
@@ -200,11 +189,11 @@ export const verifyToken = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(),
-      "Verification successfull",
+      "Verification successfull"
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       createErrorSchema(),
-      "Verifivation failed",
+      "Verifivation failed"
     ),
   },
   security: [
