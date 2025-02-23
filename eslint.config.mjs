@@ -14,7 +14,7 @@ export default antfu(
     },
   },
   {
-    ignores: ["@/dbmigrations/"],
+    ignores: ["@/db/migrations/"],
     rules: {
       "no-console": ["warn"],
       "antfu/no-top-level-await": ["off"],
@@ -37,5 +37,5 @@ export default antfu(
       //   },
       // ],
     },
-  },
+  }
 );

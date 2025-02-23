@@ -1,30 +1,33 @@
-import { sql } from "drizzle-orm";
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import {
+  boolean,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+  varchar,
+} from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-import crypto from "node:crypto";
 
-export const users = sqliteTable("users", {
-  id: text()
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  firstName: text({ length: 50 }).notNull(),
-  lastName: text({ length: 50 }).notNull(),
-  email: text({ length: 100 }).notNull().unique(),
-  isActive: integer({ mode: "boolean" }).default(false).notNull(),
-  email_verified: integer({ mode: "boolean" }).default(false).notNull(),
-  isAdmin: integer({ mode: "boolean" }).default(false).notNull(),
-  password: text().notNull(),
-  updatedAt: text()
-    .notNull()
-    .default(sql`(current_timestamp)`)
-    .$onUpdate(() => sql`(current_timestamp)`),
-  createdAt: text()
-    .notNull()
-    .default(sql`(current_timestamp)`),
-  deletedAt: text(),
+export const userRole = pgEnum("role", ["USER", "ADMIN"]);
+
+export const userTable = pgTable("users", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  firstName: varchar("first_name", { length: 255 }).notNull(),
+  lastName: varchar("last_name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  password: text("password").notNull(),
+  isActive: boolean("is_active").default(false).notNull(),
+  role: userRole().default("USER").notNull(),
+  emailVerifiedAt: timestamp("email_verified_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .$onUpdate(() => new Date())
+    .notNull(),
+  deletedAt: timestamp("deleted_at"),
 });
 
-export const userInsertSchema = createInsertSchema(users)
+export const userInsertSchema = createInsertSchema(userTable)
   .required({
     firstName: true,
     lastName: true,
@@ -37,11 +40,11 @@ export const userInsertSchema = createInsertSchema(users)
     updatedAt: true,
     deletedAt: true,
     isActive: true,
-    isAdmin: true,
-    email_verified: true,
+    role: true,
+    emailVerifiedAt: true,
   });
 
-export const userSelectSchema = createSelectSchema(users).omit({
+export const userSelectSchema = createSelectSchema(userTable).omit({
   password: true,
 });
 

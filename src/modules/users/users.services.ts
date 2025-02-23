@@ -1,33 +1,33 @@
 import { eq } from "drizzle-orm";
 
 import { db } from "@/db";
-import { users } from "@/db/schema/users";
+import { userTable } from "@/db/schema/users";
 
 export const userSelect = {
-  id: users.id,
-  firstName: users.firstName,
-  lastName: users.lastName,
-  email: users.email,
-  isActive: users.isActive,
-  emailVerified: users.email_verified,
-  createdAt: users.createdAt,
-  updatedAt: users.updatedAt,
-  deletedAt: users.deletedAt,
+  id: userTable.id,
+  firstName: userTable.firstName,
+  lastName: userTable.lastName,
+  email: userTable.email,
+  isActive: userTable.isActive,
+  emailVerified: userTable.emailVerifiedAt,
+  createdAt: userTable.createdAt,
+  updatedAt: userTable.updatedAt,
+  deletedAt: userTable.deletedAt,
 };
 
 export async function getUserByEmail(email: string) {
   const [user] = await db
     .select(userSelect)
-    .from(users)
-    .where(eq(users.email, email));
+    .from(userTable)
+    .where(eq(userTable.email, email));
   return user;
 }
 
 export async function getUserById(id: string) {
   const [user] = await db
     .select(userSelect)
-    .from(users)
-    .where(eq(users.id, id));
+    .from(userTable)
+    .where(eq(userTable.id, id));
 
   return user;
 }

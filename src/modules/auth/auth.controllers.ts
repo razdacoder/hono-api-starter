@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import type { AppRouteHandler } from "@/lib/types";
 
 import { db } from "@/db/index";
-import { users } from "@/db/schema/users";
+import { userTable } from "@/db/schema/users";
 import {
   generateOrReuseOTP,
   invalidateOTP,
@@ -35,8 +35,8 @@ export const register: AppRouteHandler<RegisterRoute> = async (c) => {
 
   const [existingUser] = await db
     .select()
-    .from(users)
-    .where(eq(users.email, email));
+    .from(userTable)
+    .where(eq(userTable.email, email));
 
   if (existingUser) {
     return c.json({ success: false, message: "Email already exists" }, 400);
@@ -45,7 +45,7 @@ export const register: AppRouteHandler<RegisterRoute> = async (c) => {
   const hashPassword = await argon2.hash(password);
 
   const [user] = await db
-    .insert(users)
+    .insert(userTable)
     .values({
       firstName,
       lastName,
@@ -79,8 +79,8 @@ export const resendActivation: AppRouteHandler<ResendActivationType> = async (
   const { email } = c.req.valid("json");
   const [user] = await db
     .select(userSelect)
-    .from(users)
-    .where(eq(users.email, email));
+    .from(userTable)
+    .where(eq(userTable.email, email));
   if (!user) {
     return c.json({ success: false, message: "No active account found" }, 400);
   }
@@ -95,7 +95,7 @@ export const resendActivation: AppRouteHandler<ResendActivationType> = async (
   return c.json(
     {
       success: true,
-      message: "OTP resend successfull",
+      message: "OTP resend successful",
     },
     200
   );
@@ -105,8 +105,8 @@ export const activation: AppRouteHandler<ActivationType> = async (c) => {
   const { email, otp } = c.req.valid("json");
   const [user] = await db
     .select(userSelect)
-    .from(users)
-    .where(eq(users.email, email));
+    .from(userTable)
+    .where(eq(userTable.email, email));
 
   if (!user) {
     return c.json(
@@ -131,9 +131,9 @@ export const activation: AppRouteHandler<ActivationType> = async (c) => {
   }
 
   await db
-    .update(users)
+    .update(userTable)
     .set({ isActive: true, email_verified: true })
-    .where(eq(users.id, user.id));
+    .where(eq(userTable.id, user.id));
 
   await sendWelcomeEmail({ name: user.firstName, email: user.email });
 
@@ -156,7 +156,10 @@ export const activation: AppRouteHandler<ActivationType> = async (c) => {
 export const login: AppRouteHandler<LoginType> = async (c) => {
   const { email, password } = c.req.valid("json");
 
-  const [user] = await db.select().from(users).where(eq(users.email, email));
+  const [user] = await db
+    .select()
+    .from(userTable)
+    .where(eq(userTable.email, email));
 
   if (!user || !(await argon2.verify(user.password, password))) {
     return c.json(
@@ -175,7 +178,7 @@ export const login: AppRouteHandler<LoginType> = async (c) => {
     );
   }
 
-  if (!user.email_verified) {
+  if (!user.emailVerifiedAt) {
     const otp = await generateOrReuseOTP(user.id, "activation");
 
     await sendActivationEmail({ email: user.email, otp });
@@ -222,7 +225,7 @@ export const login: AppRouteHandler<LoginType> = async (c) => {
   return c.json(
     {
       success: true,
-      message: "Login sucessfull",
+      message: "Login successful",
       data: {
         access_token,
         refresh_token,
@@ -263,25 +266,25 @@ export const resetPasswordConfirm: AppRouteHandler<
   const user = await getUserByEmail(email);
 
   if (!user) {
-    return c.json({ success: false, message: "Invalid or exipred otp" }, 400);
+    return c.json({ success: false, message: "Invalid or expired otp" }, 400);
   }
 
   const isValidOTP = await validateOTP(user.id, otp, "reset-password");
 
   if (!isValidOTP) {
-    return c.json({ success: false, message: "Invalid or exipred otp" }, 400);
+    return c.json({ success: false, message: "Invalid or expired otp" }, 400);
   }
 
   const hashedPassword = await argon2.hash(new_password);
 
   await db
-    .update(users)
+    .update(userTable)
     .set({ password: hashedPassword })
-    .where(eq(users.id, user.id));
+    .where(eq(userTable.id, user.id));
 
   await invalidateOTP(user.id, "reset-password");
 
-  return c.json({ success: true, message: "Password reset sucessfull" }, 200);
+  return c.json({ success: true, message: "Password reset successful" }, 200);
 };
 
 export const refreshToken: AppRouteHandler<RefreshTokenType> = async (c) => {
@@ -298,7 +301,7 @@ export const refreshToken: AppRouteHandler<RefreshTokenType> = async (c) => {
     return c.json(
       {
         success: true,
-        message: "Token refresh sucessfull",
+        message: "Token refresh successful",
         data: {
           access_token,
         },
@@ -313,7 +316,7 @@ export const refreshToken: AppRouteHandler<RefreshTokenType> = async (c) => {
 
 export const verifyToken: AppRouteHandler<VerifyTokenType> = async (c) => {
   return c.json(
-    { success: true, message: "Token verification Sucessuful" },
+    { success: true, message: "Token verification Successful" },
     200
   );
 };

@@ -39,11 +39,11 @@ importers:
         specifier: ^11.0.6
         version: 11.0.6
       drizzle-orm:
-        specifier: ^0.38.3
-        version: 0.38.3(kysely@0.27.5)(postgres@3.4.5)
+        specifier: ^0.39.3
+        version: 0.39.3(kysely@0.27.5)(postgres@3.4.5)
       drizzle-zod:
-        specifier: ^0.6.1
-        version: 0.6.1(drizzle-orm@0.38.3(kysely@0.27.5)(postgres@3.4.5))(zod@3.23.8)
+        specifier: ^0.7.0
+        version: 0.7.0(drizzle-orm@0.39.3(kysely@0.27.5)(postgres@3.4.5))(zod@3.23.8)
       hono:
         specifier: ^4.6.5
         version: 4.6.5
@@ -1253,8 +1253,8 @@ packages:
     resolution: {integrity: sha512-HmA/NeewvHywhJ2ENXD3KvOuM/+K2dGLJfxVfIHsGwaqKICJnS+Ke2L6UcSrSrtMJLJaT0Im1Qv4TFXfaZShyw==}
     hasBin: true
 
-  drizzle-orm@0.38.3:
-    resolution: {integrity: sha512-w41Y+PquMpSff/QDRGdItG0/aWca+/J3Sda9PPGkTxBtjWQvgU1jxlFBXdjog5tYvTu58uvi3PwR1NuCx0KeZg==}
+  drizzle-orm@0.39.3:
+    resolution: {integrity: sha512-EZ8ZpYvDIvKU9C56JYLOmUskazhad+uXZCTCRN4OnRMsL+xAJ05dv1eCpAG5xzhsm1hqiuC5kAZUCS924u2DTw==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
       '@cloudflare/workers-types': '>=4'
@@ -1269,7 +1269,6 @@ packages:
       '@tidbcloud/serverless': '*'
       '@types/better-sqlite3': '*'
       '@types/pg': '*'
-      '@types/react': '>=18'
       '@types/sql.js': '*'
       '@vercel/postgres': '>=0.8.0'
       '@xata.io/client': '*'
@@ -1282,7 +1281,6 @@ packages:
       pg: '>=8'
       postgres: '>=3'
       prisma: '*'
-      react: '>=18'
       sql.js: '>=1'
       sqlite3: '>=5'
     peerDependenciesMeta:
@@ -1312,8 +1310,6 @@ packages:
         optional: true
       '@types/pg':
         optional: true
-      '@types/react':
-        optional: true
       '@types/sql.js':
         optional: true
       '@vercel/postgres':
@@ -1338,15 +1334,13 @@ packages:
         optional: true
       prisma:
         optional: true
-      react:
-        optional: true
       sql.js:
         optional: true
       sqlite3:
         optional: true
 
-  drizzle-zod@0.6.1:
-    resolution: {integrity: sha512-huEbUgnsuR8tupnmLiyB2F1I2H9dswI3GfM36IbIqx9i0YUeYjRsDpJVyFVeziUvI1ogT9JHRL2Q03cC4QmvxA==}
+  drizzle-zod@0.7.0:
+    resolution: {integrity: sha512-xgCRYYVEzRkeXTS33GSMgoowe3vKsMNBjSI+cwG1oLQVEhAWWbqtb/AAMlm7tkmV4fG/uJjEmWzdzlEmTgWOoQ==}
     peerDependencies:
       drizzle-orm: '>=0.36.0'
       zod: '>=3.0.0'
@@ -3646,14 +3640,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.38.3(kysely@0.27.5)(postgres@3.4.5):
+  drizzle-orm@0.39.3(kysely@0.27.5)(postgres@3.4.5):
     optionalDependencies:
       kysely: 0.27.5
       postgres: 3.4.5
 
-  drizzle-zod@0.6.1(drizzle-orm@0.38.3(kysely@0.27.5)(postgres@3.4.5))(zod@3.23.8):
+  drizzle-zod@0.7.0(drizzle-orm@0.39.3(kysely@0.27.5)(postgres@3.4.5))(zod@3.23.8):
     dependencies:
-      drizzle-orm: 0.38.3(kysely@0.27.5)(postgres@3.4.5)
+      drizzle-orm: 0.39.3(kysely@0.27.5)(postgres@3.4.5)
       zod: 3.23.8
 
   effect@3.12.2:
