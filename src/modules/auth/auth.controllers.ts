@@ -26,15 +26,12 @@ import type {
   VerifyTokenType,
 } from "./auth.routes";
 
-import { getUserByEmail, userSelect } from "../users/users.services";
+import { createUser, getUserByEmail } from "../users/users.services";
 
 export const register: AppRouteHandler<RegisterRoute> = async (c) => {
   const { firstName, lastName, email, password } = c.req.valid("json");
 
-  const [existingUser] = await db
-    .select()
-    .from(userTable)
-    .where(eq(userTable.email, email));
+  const existingUser = await getUserByEmail({ email, withPassword: false });
 
   if (existingUser) {
     return c.json({ success: false, message: "Email already exists" }, 400);
@@ -42,15 +39,12 @@ export const register: AppRouteHandler<RegisterRoute> = async (c) => {
 
   const hashPassword = await argon2.hash(password);
 
-  const [user] = await db
-    .insert(userTable)
-    .values({
-      firstName,
-      lastName,
-      email,
-      password: hashPassword,
-    })
-    .returning(userSelect);
+  const user = await createUser({
+    firstName,
+    lastName,
+    email,
+    password: hashPassword,
+  });
 
   const otp = await generateOrReuseOTP(user.id, "activation");
 
@@ -69,10 +63,7 @@ export const resendActivation: AppRouteHandler<ResendActivationType> = async (
   c
 ) => {
   const { email } = c.req.valid("json");
-  const [user] = await db
-    .select(userSelect)
-    .from(userTable)
-    .where(eq(userTable.email, email));
+  const user = await getUserByEmail({ email, withPassword: false });
   if (!user) {
     return c.json({ message: "No active account found" }, 400);
   }
@@ -90,10 +81,7 @@ export const resendActivation: AppRouteHandler<ResendActivationType> = async (
 
 export const activation: AppRouteHandler<ActivationType> = async (c) => {
   const { email, otp } = c.req.valid("json");
-  const [user] = await db
-    .select(userSelect)
-    .from(userTable)
-    .where(eq(userTable.email, email));
+  const user = await getUserByEmail({ email, withPassword: false });
 
   if (!user) {
     return c.json(
@@ -138,10 +126,7 @@ export const activation: AppRouteHandler<ActivationType> = async (c) => {
 export const login: AppRouteHandler<LoginType> = async (c) => {
   const { email, password } = c.req.valid("json");
 
-  const [user] = await db
-    .select()
-    .from(userTable)
-    .where(eq(userTable.email, email));
+  const user = await getUserByEmail({ email, withPassword: true });
 
   if (!user || !(await argon2.verify(user.password, password))) {
     return c.json({ message: "Invalid email or password" }, 401);
@@ -213,7 +198,7 @@ export const login: AppRouteHandler<LoginType> = async (c) => {
 export const resetPassword: AppRouteHandler<ResetPasswordType> = async (c) => {
   const { email } = c.req.valid("json");
 
-  const user = await getUserByEmail(email);
+  const user = await getUserByEmail({ email, withPassword: false });
 
   if (user) {
     const otp = await generateOrReuseOTP(user.id, "reset-password");
@@ -235,7 +220,7 @@ export const resetPasswordConfirm: AppRouteHandler<
 > = async (c) => {
   const { email, otp, new_password } = c.req.valid("json");
 
-  const user = await getUserByEmail(email);
+  const user = await getUserByEmail({ email, withPassword: false });
 
   if (!user) {
     return c.json({ message: "Invalid or expired otp" }, 400);

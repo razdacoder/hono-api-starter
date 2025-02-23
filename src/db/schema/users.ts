@@ -1,3 +1,5 @@
+import type { InferSelectModel } from "drizzle-orm";
+
 import {
   boolean,
   pgEnum,
@@ -69,3 +71,6 @@ export const userUpdateSchema = userInsertSchema.partial().omit({
   email: true,
   password: true,
 });
+
+export type UserWithPassword = InferSelectModel<typeof userTable>;
+export type User = Omit<UserWithPassword, "password">;

@@ -1,4 +1,12 @@
+import type { z } from "zod";
+
 import { eq } from "drizzle-orm";
+
+import type {
+  User,
+  userInsertSchema,
+  UserWithPassword,
+} from "@/db/schema/users";
 
 import { db } from "@/db";
 import { userTable } from "@/db/schema/users";
@@ -16,19 +24,63 @@ export const userSelect = {
   deletedAt: userTable.deletedAt,
 };
 
-export async function getUserByEmail(email: string) {
+export const userSelectWithPassword = {
+  id: userTable.id,
+  firstName: userTable.firstName,
+  lastName: userTable.lastName,
+  email: userTable.email,
+  isActive: userTable.isActive,
+  emailVerifiedAt: userTable.emailVerifiedAt,
+  role: userTable.role,
+  password: userTable.password,
+  createdAt: userTable.createdAt,
+  updatedAt: userTable.updatedAt,
+  deletedAt: userTable.deletedAt,
+};
+
+export async function getUserByEmail<T extends boolean>({
+  email,
+  withPassword = false as T, // Default is `false`
+}: {
+  email: string;
+  withPassword?: T;
+}): Promise<T extends true ? UserWithPassword | undefined : User | undefined> {
+  const selectedFields = withPassword ? userSelectWithPassword : userSelect;
+
   const [user] = await db
-    .select(userSelect)
+    .select(selectedFields)
     .from(userTable)
     .where(eq(userTable.email, email));
-  return user;
+
+  return user as T extends true
+    ? UserWithPassword | undefined
+    : User | undefined;
 }
 
-export async function getUserById(id: string) {
+export async function getUserById<T extends boolean>({
+  id,
+  withPassword = false as T, // Default is `false`
+}: {
+  id: string;
+  withPassword?: T;
+}): Promise<T extends true ? UserWithPassword | undefined : User | undefined> {
+  const selectedFields = withPassword ? userSelectWithPassword : userSelect;
+
   const [user] = await db
-    .select(userSelect)
+    .select(selectedFields)
     .from(userTable)
     .where(eq(userTable.id, id));
+
+  return user as T extends true
+    ? UserWithPassword | undefined
+    : User | undefined;
+}
+
+export async function createUser(values: z.infer<typeof userInsertSchema>) {
+  const [user] = await db
+    .insert(userTable)
+    .values({ ...values })
+    .returning(userSelect);
 
   return user;
 }
