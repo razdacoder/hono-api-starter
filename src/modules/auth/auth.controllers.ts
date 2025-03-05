@@ -1,10 +1,12 @@
 import argon2 from "argon2";
 import { eq } from "drizzle-orm";
+import { setCookie } from "hono/cookie";
 
 import type { AppRouteHandler } from "@/lib/types";
 
 import { db } from "@/db/index";
 import { userTable } from "@/db/schema/users";
+import env from "@/env";
 import {
   generateOrReuseOTP,
   invalidateOTP,
@@ -132,15 +134,6 @@ export const login: AppRouteHandler<LoginType> = async (c) => {
     return c.json({ message: "Invalid email or password" }, 401);
   }
 
-  if (!user.isActive) {
-    return c.json(
-      {
-        message: "Account not active",
-      },
-      401
-    );
-  }
-
   if (!user.emailVerifiedAt) {
     const otp = await generateOrReuseOTP(user.id, "activation");
 
@@ -160,6 +153,15 @@ export const login: AppRouteHandler<LoginType> = async (c) => {
     );
   }
 
+  if (!user.isActive) {
+    return c.json(
+      {
+        message: "Account not active",
+      },
+      401
+    );
+  }
+
   const access_token = await encodeJWT(
     user.id,
     user.email,
@@ -172,15 +174,13 @@ export const login: AppRouteHandler<LoginType> = async (c) => {
     Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 5 // Expiry in 5 days
   );
 
-  // setCookie(c, "refresh_token", refresh_token, {
-  //   path: "/",
-  //   secure: env.NODE_ENV === "production",
-  //   httpOnly: true,
-  //   maxAge: 60 * 60 * 24 * 5, // Duration in seconds (5 days)
-  //   sameSite: "None", // Required for cookies used in cross-site contexts
-  // });
-
-  // c.header("Set-Cookie", refresh_token, { append: true });
+  setCookie(c, "refresh_token", refresh_token, {
+    path: "/",
+    secure: env.NODE_ENV === "production",
+    httpOnly: true,
+    maxAge: 60 * 60 * 24 * 5, // Duration in seconds (5 days)
+    sameSite: "None", // Required for cookies used in cross-site contexts
+  });
 
   return c.json(
     {

@@ -100,7 +100,7 @@ export const login = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(loginResponseSchema),
-      "Login sucessfull response"
+      "Login successful response"
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(loginRequestSchema),
@@ -123,7 +123,7 @@ export const resetPassword = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(),
-      "Password reset request sucessfull"
+      "Password reset request successful"
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(emailSchema),
@@ -145,7 +145,7 @@ export const resetPasswordConfirm = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(),
-      "Password reset sucessfull"
+      "Password reset successful"
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(resetPasswordConfirmSchema),
@@ -168,7 +168,7 @@ export const refreshToken = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(accessTokenSchema),
-      "Refresh token successfull"
+      "Refresh token successful"
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       refreshTokenSchema,
@@ -176,7 +176,7 @@ export const refreshToken = createRoute({
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       createErrorSchema(),
-      "Unauthoried error"
+      "Unauthorized error"
     ),
   },
 });
@@ -189,11 +189,11 @@ export const verifyToken = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createSuccessSchema(),
-      "Verification successfull"
+      "Verification successful"
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       createErrorSchema(),
-      "Verifivation failed"
+      "Verification failed"
     ),
   },
   security: [

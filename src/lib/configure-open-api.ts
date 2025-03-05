@@ -66,6 +66,6 @@ export default function configureOpenAPI(app: AppOpenAPI) {
         "undici",
         "ofetch",
       ],
-    }),
+    })
   );
 }

@@ -7,7 +7,7 @@ interface Props {
 
 function PasswordResetEmail({ name, otp }: Props) {
   return html`
-    <!doctype html>
+    <!DOCTYPE html>
     <html lang="en">
       <head>
         <meta charset="UTF-8" />
@@ -105,7 +105,9 @@ function PasswordResetEmail({ name, otp }: Props) {
             <p>© 2025 Hono API starter. All rights reserved.</p>
             <p>
               If you need further assistance, visit our
-              <a href="https://github.com/razdacoder/hono-api-starter">Support Page</a>.
+              <a href="https://github.com/razdacoder/hono-api-starter"
+                >Support Page</a
+              >.
             </p>
           </div>
         </div>
